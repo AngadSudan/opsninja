@@ -26,12 +26,14 @@ const vaultFolderSchema = z.enum([
   "Slack",
 ]);
 
-const slugify = (value: string) =>
+const slugify = (value: string | undefined) =>
   value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 90) || "untitled";
+    ? value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")
+        .slice(0, 90) || "untitled"
+    : "untitled";
 
 const normalizeId = (noteId: string) =>
   noteId.replace(/\\/g, "/").replace(/\.md$/, "");

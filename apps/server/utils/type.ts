@@ -92,9 +92,22 @@ export interface CreateMeetingDTO {
 export interface MeetingRecord {
   record_id: string;
   meeting_id: string;
-  summary: string;
+  shortname: string;
+  description: string;
+  actions: MeetingAction[];
   created_at: string;
   updated_at: string;
+}
+
+export interface MeetingAction {
+  id: string;
+  title: string;
+  description?: string;
+  assignee?: string;
+  dueDate?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  externalAction?: "none" | "jira" | "slack";
+  target?: string;
 }
 
 // Action
@@ -102,8 +115,10 @@ export interface MeetingActionItem {
   action_id: string;
   meeting_id: string;
   action_by: string;
-  action_status: "success" | "failed" | "pending" | "un_initialized" | "initialized";
-  action_type: "create_jira_issue" | "send_slack_message" | "create_calendar_event";
+  action_status:
+    "success" | "failed" | "pending" | "un_initialized" | "initialized";
+  action_type:
+    "create_jira_issue" | "send_slack_message" | "create_calendar_event";
   error_message?: string;
   integration_platform: "jira" | "slack" | "calendar";
   created_at: string;

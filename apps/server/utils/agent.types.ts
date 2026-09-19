@@ -6,16 +6,23 @@ export type ActionType = z.infer<typeof actionTypeSchema>;
 export const meetingActionSchema = z.object({
   id: z.string().min(1).describe("A short, unique slug for this action item."),
   title: z.string().min(1),
-  description: z.string().optional(),
-  assignee: z.string().optional(),
-  dueDate: z.string().optional(),
+  description: z.string().nullable().optional(),
+  assignee: z.string().nullable().optional(),
+  dueDate: z.string().nullable().optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
   externalAction: actionTypeSchema.default("none"),
   target: z
     .string()
+    .nullable()
     .optional()
     .describe("Jira project key or Slack channel when known."),
-});
+}).transform((data) => ({
+  ...data,
+  description: data.description || undefined,
+  assignee: data.assignee || undefined,
+  dueDate: data.dueDate || undefined,
+  target: data.target || undefined,
+}));
 
 export type MeetingAction = z.infer<typeof meetingActionSchema>;
 

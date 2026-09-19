@@ -1,18 +1,10 @@
 import crypto from "crypto";
 import messageRepository from "../repository/message.repository";
 import chatRepository from "../repository/chat.repository";
-import orchestratorAgent from "../agent/orchestrator.agent";
-import type { ConversationTurn } from "../agent/orchestrator.agent";
-import embeddingService from "../service/embedding.service";
-import graphService from "../service/graph.service";
-import { classifyIntent } from "../utils/intent.classifier";
-import { extractProposals } from "../utils/parseProposals";
-import { parseStructuredResponse } from "../utils/parseStructuredResponse";
-import { LIMITS_BY_INTENT } from "../utils/agentConstants";
+import conversationService from "../service/conversation.service";
 import type { Message } from "../utils/type";
 import type { JiraCredentials } from "../agent/jira.agent";
 import type { SlackCredentials } from "../agent/slack.agent";
-import type { GraphContext } from "../service/graph.service";
 
 class MessageController {
   async sendMessage(
@@ -39,55 +31,48 @@ class MessageController {
 
     await messageRepository.createMessage(userMessage);
 
-    const [allMessages, intent, queryEmbedding] = await Promise.all([
-      messageRepository.findMessagesByChatId(chatId),
-      classifyIntent(text.trim()),
-      embeddingService.embed(text.trim()),
-    ]);
+    console.log(`[MessageController] Processing message: "${text.substring(0, 50)}..."`);
 
-    const history: ConversationTurn[] = allMessages
+    // Get previous messages for context
+    const allMessages = await messageRepository.findMessagesByChatId(chatId);
+    const conversationHistory = allMessages
       .filter((m) => m.message_id !== userMessage.message_id)
-      .slice(-10)
+      .slice(-5)
       .map((m) => ({
-        role: m.message_type === "USER" ? "user" : "assistant",
+        role: m.message_type === "USER" ? ("user" as const) : ("assistant" as const),
         content: m.message,
       }));
 
-    const graphContext = await graphService.getProjectContext(
-      chat.project_id,
-      queryEmbedding,
-    );
-    const contextPrefix = buildContextPrefix(graphContext);
+    const systemPrompt = "You are a helpful assistant for project meetings and action items. Provide clear, concise answers.";
 
-    const limits = LIMITS_BY_INTENT[intent];
-
-    const { answer } = await orchestratorAgent.respond(text.trim(), {
-      jira: jiraCredentials,
-      slack: slackCredentials,
-      systemPrefix: contextPrefix,
-      history,
-      maxTurns: limits.maxTurns,
-      maxTokens: limits.maxTokens,
-    });
-
-    const { cleanAnswer, proposals } = extractProposals(answer || "");
-    const agentResponse = parseStructuredResponse(cleanAnswer);
+    let answer: string;
+    try {
+      console.log(`[MessageController] Calling AI conversation service...`);
+      answer = await conversationService.chat(
+        text.trim(),
+        systemPrompt,
+        conversationHistory,
+      );
+      console.log(`[MessageController] AI response received: ${answer.substring(0, 100)}...`);
+    } catch (error) {
+      console.error(`[MessageController] AI service error:`, error);
+      answer = `I encountered an error: ${error instanceof Error ? error.message : String(error)}`;
+    }
 
     const replyNow = new Date().toISOString();
     const agentReply: Message = {
       message_id: crypto.randomUUID(),
       chat_id: chatId,
-      message: cleanAnswer || "No response generated.",
+      message: answer,
       message_type: "SYSTEM",
       created_at: replyNow,
       updated_at: replyNow,
-      structured_response: JSON.stringify(agentResponse),
-      proposed_actions: proposals.length ? JSON.stringify(proposals) : undefined,
     };
 
     await messageRepository.createMessage(agentReply);
+    console.log(`[MessageController] Message saved successfully`);
 
-    return { user_message: userMessage, agent_reply: agentReply, proposed_actions: proposals };
+    return { user_message: userMessage, agent_reply: agentReply, proposed_actions: [] };
   }
 
   async getAllMessages(chatId: string): Promise<Message[]> {
@@ -97,27 +82,4 @@ class MessageController {
 }
 
 export default new MessageController();
-
-function buildContextPrefix(ctx: GraphContext | null): string {
-  if (!ctx) return "";
-  const lines: string[] = ["--- PROJECT CONTEXT ---"];
-  for (const m of ctx.meetings) {
-    lines.push(`\nMeeting${m.date ? ` (${m.date})` : ""}: ${m.summary}`);
-    if (m.participants.length)
-      lines.push(`  Participants: ${m.participants.join(", ")}`);
-    if (m.decisions.length)
-      lines.push(`  Decisions: ${m.decisions.join("; ")}`);
-  }
-  if (ctx.recentActions.length) {
-    lines.push("\nAction Items:");
-    for (const a of ctx.recentActions) {
-      lines.push(
-        `  - [${a.status}] ${a.title}${a.assignee ? ` (${a.assignee})` : ""}`,
-      );
-    }
-  }
-  lines.push("--- END CONTEXT ---");
-  return lines.join("\n");
-}
-
 

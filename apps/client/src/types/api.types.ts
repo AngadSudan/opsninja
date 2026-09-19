@@ -58,8 +58,22 @@ export interface ActionItem {
   title: string;
   description?: string;
   assignee?: string;
-  action_type: "jira" | "slack" | "manual" | "create_jira_issue" | "send_slack_message" | "create_calendar_event" | string;
-  action_status: "pending" | "in_progress" | "completed" | "failed" | "success" | "initialized" | "un_initialized";
+  action_type:
+    | "jira"
+    | "slack"
+    | "manual"
+    | "create_jira_issue"
+    | "send_slack_message"
+    | "create_calendar_event"
+    | string;
+  action_status:
+    | "pending"
+    | "in_progress"
+    | "completed"
+    | "failed"
+    | "success"
+    | "initialized"
+    | "un_initialized";
   priority?: "high" | "medium" | "low";
   target?: string;
   error_message?: string;
@@ -70,14 +84,28 @@ export interface ActionItem {
 }
 
 export interface MeetingRecord {
+  record_id?: string;
   meeting_id: string;
   project_id: string;
   uploaded_by: string;
   meeting_platform: string;
   original_transcript: string;
-  summary?: string;
+  shortname?: string;
+  description?: string;
+  actions?: MeetingAction[];
   created_at: string;
   updated_at: string;
+}
+
+export interface MeetingAction {
+  id: string;
+  title: string;
+  description?: string;
+  assignee?: string;
+  dueDate?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  externalAction?: "none" | "jira" | "slack";
+  target?: string;
 }
 
 export interface ApiResponse<T> {

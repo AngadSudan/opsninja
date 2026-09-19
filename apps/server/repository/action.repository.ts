@@ -17,10 +17,13 @@ class ActionRepository {
 
   async createAction(action: MeetingActionItem): Promise<MeetingActionItem> {
     const client = this.getClient();
+    const cleanAction = Object.fromEntries(
+      Object.entries(action).filter(([, v]) => v !== undefined)
+    );
     await client.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: action,
+        Item: cleanAction,
       }),
     );
     return action;

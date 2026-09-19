@@ -3,8 +3,9 @@ import type { JiraCredentials } from "./jira.service";
 import jiraService from "./jira.service";
 import type { SlackCredentials } from "./slack.service.ts";
 import slackService from "./slack.service.ts";
-import transcriptAgent from "../agent/transcript.agent";
+import transcriptProcessorService from "./transcriptProcessor.service";
 import vaultService from "./vault.service.ts";
+import graphService from "./graph.service";
 
 type IntegrationCredentials = {
   jira?: JiraCredentials;
@@ -21,33 +22,54 @@ const getString = (value: unknown, key: string) =>
 
 export class MeetingWorkflowService {
   async ingestTranscript(transcript: string) {
-    const minutes = await transcriptAgent.createMinutes(transcript);
-    const meeting = await vaultService.saveMeetingMinutes(minutes);
-    const actions = await Promise.all(
-      minutes.actionItems.map(async (action) => {
-        const actionNote = await vaultService.saveActionNote(
-          action,
-          meeting.id,
-        );
-        return {
-          actionNoteId: actionNote.id,
-          type: action.externalAction,
-          title: action.title,
-          description: action.description,
-          target: action.target,
-          assignee: action.assignee,
-          priority: action.priority,
-        };
-      }),
+    console.log(`[MeetingWorkflowService] Starting transcript ingestion...`);
+
+    let minutes;
+    let structured;
+    try {
+      structured =
+        await transcriptProcessorService.processTranscript(transcript);
+      minutes = structured.minutes;
+      console.log(
+        `[MeetingWorkflowService] Transcript processed: ${minutes.actionItems.length} actions, ${minutes.decisions.length} decisions`,
+      );
+    } catch (error) {
+      console.error(
+        `[MeetingWorkflowService] Failed to process transcript:`,
+        error,
+      );
+      throw new Error(
+        `Failed to create MOM: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    const actions: ActionProposal[] = minutes.actionItems
+      .filter(
+        (action) =>
+          action.externalAction === "jira" || action.externalAction === "slack",
+      )
+      .map((action) => ({
+        actionNoteId: `action-${Date.now()}-${Math.random()}`,
+        type: action.externalAction as "jira" | "slack",
+        title: action.title,
+        description: action.description,
+        target: action.target,
+        assignee: action.assignee,
+        priority: action.priority,
+      }));
+
+    console.log(
+      `[MeetingWorkflowService] Generated ${actions.length} action proposals`,
     );
 
-    const proposals: ActionProposal[] = actions.flatMap((action) =>
-      action.type === "jira" || action.type === "slack"
-        ? [{ ...action, type: action.type }]
-        : [],
-    );
-
-    return { minutes, meeting, proposals };
+    return {
+      minutes,
+      shortname: structured.shortname,
+      description: structured.description,
+      meeting: { id: `meeting-${Date.now()}` },
+      proposals: actions,
+      actions: structured.actions,
+    };
   }
 
   async executeApprovedAction(input: {

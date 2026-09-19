@@ -47,7 +47,8 @@ export default function MeetingSummaryPage({
             Meeting Records & Syntheses
           </h1>
           <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#596257]">
-            Structured records give everyone the same starting point for decisions, dependencies, and next steps.
+            Structured records give everyone the same starting point for
+            decisions, dependencies, and next steps.
           </p>
         </div>
 
@@ -86,9 +87,12 @@ export default function MeetingSummaryPage({
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0f8ef] text-2xl text-[#2f7447] shadow-xs">
             ✓
           </div>
-          <h2 className="mt-5 text-lg font-bold text-[#20251f]">No meeting records yet</h2>
+          <h2 className="mt-5 text-lg font-bold text-[#20251f]">
+            No meeting records yet
+          </h2>
           <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-[#596257]">
-            Upload a meeting transcript to extract structured intelligence, decisions, and action items.
+            Upload a meeting transcript to extract structured intelligence,
+            decisions, and action items.
           </p>
           <button
             type="button"
@@ -117,23 +121,25 @@ export default function MeetingSummaryPage({
                     </span>
                     <span className="text-[#8a9587]">·</span>
                     <span className="text-[#7a8678]">
-                      {new Date(meeting.created_at).toLocaleDateString(undefined, {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {new Date(meeting.created_at).toLocaleDateString(
+                        undefined,
+                        {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
                     </span>
                   </div>
 
                   <h2 className="mt-4 text-lg font-bold text-[#20251f] transition group-hover:text-[#59745b]">
-                    {meeting.summary
-                      ? meeting.summary.slice(0, 90) + (meeting.summary.length > 90 ? "…" : "")
-                      : "Meeting Record"}
+                    {meeting.shortname || "Meeting Record"}
                   </h2>
 
                   <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#596257]">
-                    {meeting.summary ?? "Transcript uploaded and processed."}
+                    {meeting.description ??
+                      "Transcript uploaded and processed."}
                   </p>
                 </div>
 
