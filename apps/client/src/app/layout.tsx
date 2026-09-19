@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import PWARegister from "@/component/PWARegister";
+import Providers from "@/component/Providers";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <PWARegister />
       </body>
     </html>

@@ -1,31 +1,86 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { redirectToCognito } from "@/lib/auth";
+
+function BrandLogo({ className = "h-7 w-7" }: { className?: string }) {
+  return (
+    <div className={`relative flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-full w-full drop-shadow-sm"
+      >
+        <rect width="32" height="32" rx="9" fill="#20251f" />
+        <path
+          d="M8 22L16 10L24 22H8Z"
+          fill="#59745b"
+          fillOpacity="0.35"
+        />
+        <path
+          d="M10 21L16 12L22 21H10Z"
+          stroke="#b7d0b7"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <circle cx="16" cy="18" r="2.2" fill="#16a34a" />
+      </svg>
+    </div>
+  );
+}
 
 export default function SigninPage() {
-  const [notice, setNotice] = useState("");
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setNotice("Sign-in is not connected yet. Use the workspace preview to explore Ops Ninja.");
-  }
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuthenticated) {
+        router.push("/home");
+      } else {
+        redirectToCognito();
+      }
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   return (
-    <main className="auth-page">
-      <form className="auth-card" onSubmit={submit}>
-        <Link href="/" className="brand"><span className="mark" aria-hidden="true"><i /><i /><i /><i /></span>Ops Ninja</Link>
-        <h1>Welcome back</h1>
-        <p>Sign in to continue with your shared operational context.</p>
-        <div className="auth-field"><label htmlFor="email">Work email</label><input id="email" type="email" autoComplete="email" placeholder="you@company.com" required /></div>
-        <div className="auth-field"><label htmlFor="password">Password</label><input id="password" type="password" autoComplete="current-password" placeholder="Enter your password" required /></div>
-        <div className="auth-extras"><label><input type="checkbox" /> Remember me</label><a href="#password">Forgot password?</a></div>
-        <button className="button button-primary auth-submit" type="submit">Sign in</button>
-        {notice ? <p className="auth-notice" role="status">{notice}</p> : null}
-        <div className="auth-divider">or continue with</div>
-        <button className="auth-social" type="button" onClick={() => setNotice("Google sign-in is not configured yet.")}>G <span>Google</span></button>
-        <p className="auth-footer">Don&apos;t have an account? <Link href="/signup">Sign up</Link></p>
-      </form>
+    <main className="flex min-h-screen items-center justify-center bg-[#fafaf8] px-5 py-10 text-[#20251f]">
+      <section className="w-full max-w-md rounded-3xl border border-[#dfe5dc] bg-white p-8 text-center shadow-2xl shadow-[#20251f]/5">
+        <Link href="/" className="inline-flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
+          <BrandLogo /> Ops Ninja
+        </Link>
+
+        <h1 className="mt-8 text-2xl font-bold tracking-tight text-[#20251f]">
+          Redirecting to authentication
+        </h1>
+        <p className="mt-2 text-xs leading-6 text-[#6a7368]">
+          Connecting securely with Amazon Cognito to authenticate your workspace identity.
+        </p>
+
+        <div className="my-8 flex justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-3 border-[#dfe5dc] border-t-[#20251f]" />
+        </div>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => redirectToCognito()}
+            className="w-full rounded-xl bg-[#20251f] py-2.5 text-xs font-bold text-white transition hover:bg-[#343e33]"
+          >
+            Click here if not redirected automatically
+          </button>
+          <Link
+            href="/"
+            className="block text-xs font-semibold text-[#59745b] hover:underline"
+          >
+            ← Return to overview
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

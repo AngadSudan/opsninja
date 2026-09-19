@@ -155,22 +155,45 @@ export const AtlassianOAuthHandler = async (req: Request, res: Response) => {
       throw new Error("No Jira site is available for this Atlassian token");
     }
 
-    // await integrationService.saveIntegration({
-    //   integration_id: crypto.randomUUID(),
-    //   user_id: pendingState.userId,
-    //   atlassian_cloud_id: jiraResource.id,
-    //   atlassian_site_url: jiraResource.url,
-    //   atlassian_access_token: token.access_token,
-    //   atlassian_refresh_token: token.refresh_token,
-    //   atlassian_token_expires_at: new Date(
-    //     Date.now() + token.expires_in * 1000,
-    //   ).toISOString(),
-    // });
+    await integrationService.saveIntegration({
+      integration_id: crypto.randomUUID(),
+      user_id: pendingState.userId,
+      atlassian_cloud_id: jiraResource.id,
+      atlassian_site_url: jiraResource.url,
+      atlassian_access_token: token.access_token,
+      atlassian_refresh_token: token.refresh_token,
+      atlassian_token_expires_at: new Date(
+        Date.now() + token.expires_in * 1000,
+      ).toISOString(),
+    });
 
     return res.status(301).redirect(requireConfigValue("SUCCESS_OAUTH_URL"));
   } catch (error) {
     console.log(error);
     return res.status(302).redirect(requireConfigValue("FAILED_OAUTH_URL"));
+  }
+};
+
+export const cognitoOAuthInitiator = (req: Request, res: Response) => {
+  try {
+    const domain = requireConfigValue("AWS_COGNITO_DOMAIN");
+    const clientId = requireConfigValue("AWS_COGNITO_CLIENT_ID");
+    const redirectUri = requireConfigValue("AWS_COGNITO_REDIRECT_URI");
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      response_type: "code",
+      scope: "email openid profile",
+      redirect_uri: redirectUri,
+    });
+
+    const loginUrl = `${domain}/login?${params.toString()}`;
+    return res.redirect(loginUrl);
+  } catch (error) {
+    console.log("Cognito initiator error:", error);
+    return res
+      .status(302)
+      .redirect(getConfigValue("FAILED_OAUTH_URL", "http://localhost:3000/?error=auth_failed"));
   }
 };
 
@@ -207,6 +230,17 @@ export const cognitoOAuthHandler = async (req: Request, res: Response) => {
     console.log(error);
     return res
       .status(302)
-      .redirect(getConfigValue("FAILED_OAUTH_URL", "http://localhost:3000"));
+      .redirect(requireConfigValue("FAILED_OAUTH_URL"));
   }
+};
+
+export const logoutHandler = (req: Request, res: Response): void => {
+  res.clearCookie(APPLICATION_TOKEN_COOKIE, {
+    httpOnly: true,
+    secure: isProduction(),
+    sameSite: "lax",
+  });
+  res
+    .status(302)
+    .redirect(getConfigValue("FRONTEND_URL", "http://localhost:3000"));
 };

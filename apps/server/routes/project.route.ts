@@ -2,8 +2,11 @@ import { Router, type Request, type Response } from "express";
 import apiResponse from "../utils/apiResponse";
 import projectController from "../controllers/project.controller";
 import isUserInputValid from "../utils/validator";
+import { authenticate } from "../middleware/authenticate";
 
 const projectRouter = Router();
+
+projectRouter.use(authenticate);
 
 // Create Project
 projectRouter.post("/create-project", async (req: Request, res: Response) => {
@@ -15,13 +18,13 @@ projectRouter.post("/create-project", async (req: Request, res: Response) => {
     const data = await projectController.createProject({
       name: req.body.name,
       description: req.body.description,
-      created_by: req.body.created_by,
+      created_by: req.user!.user_id,
     });
 
-    return res.json(apiResponse(200, "project created", data));
+    return res.status(201).json(apiResponse(201, "project created", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -34,10 +37,10 @@ projectRouter.post("/", async (req: Request, res: Response) => {
     const data = await projectController.createProject({
       name: req.body.name,
       description: req.body.description,
-      created_by: req.body.created_by,
+      created_by: req.user!.user_id,
     });
 
-    return res.json(apiResponse(200, "project created", data));
+    return res.status(201).json(apiResponse(201, "project created", data));
   } catch (error: any) {
     console.log(error);
     return res.json(apiResponse(500, error.message, null));
@@ -52,24 +55,22 @@ projectRouter.get("/get-projects", async (req: Request, res: Response) => {
       : undefined;
     const data = await projectController.getAllProjects(createdBy);
 
-    return res.json(apiResponse(200, "projects fetched", data));
+    return res.status(200).json(apiResponse(200, "projects fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
 projectRouter.get("/", async (req: Request, res: Response) => {
   try {
-    const createdBy = req.query.created_by
-      ? String(req.query.created_by)
-      : undefined;
-    const data = await projectController.getAllProjects(createdBy);
+    // Filter by authenticated user
+    const data = await projectController.getAllProjects(req.user!.user_id);
 
-    return res.json(apiResponse(200, "projects fetched", data));
+    return res.status(200).json(apiResponse(200, "projects fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -83,10 +84,10 @@ projectRouter.get("/get-project/:id", async (req: Request, res: Response) => {
 
     const data = await projectController.getProject(projectId);
 
-    return res.json(apiResponse(200, "project fetched", data));
+    return res.status(200).json(apiResponse(200, "project fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -99,7 +100,7 @@ projectRouter.get("/:id", async (req: Request, res: Response) => {
 
     const data = await projectController.getProject(projectId);
 
-    return res.json(apiResponse(200, "project fetched", data));
+    return res.status(200).json(apiResponse(200, "project fetched", data));
   } catch (error: any) {
     console.log(error);
     return res.json(apiResponse(500, error.message, null));
@@ -120,10 +121,10 @@ projectRouter.put("/update-project/:id", async (req: Request, res: Response) => 
 
     const data = await projectController.updateProject(projectId, req.body);
 
-    return res.json(apiResponse(200, "project updated", data));
+    return res.status(200).json(apiResponse(200, "project updated", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -140,7 +141,7 @@ projectRouter.put("/:id", async (req: Request, res: Response) => {
 
     const data = await projectController.updateProject(projectId, req.body);
 
-    return res.json(apiResponse(200, "project updated", data));
+    return res.status(200).json(apiResponse(200, "project updated", data));
   } catch (error: any) {
     console.log(error);
     return res.json(apiResponse(500, error.message, null));
@@ -157,10 +158,10 @@ projectRouter.delete("/delete-project/:id", async (req: Request, res: Response) 
 
     const data = await projectController.deleteProject(projectId);
 
-    return res.json(apiResponse(200, "project deleted", data));
+    return res.status(200).json(apiResponse(200, "project deleted", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -173,10 +174,10 @@ projectRouter.delete("/:id", async (req: Request, res: Response) => {
 
     const data = await projectController.deleteProject(projectId);
 
-    return res.json(apiResponse(200, "project deleted", data));
+    return res.status(200).json(apiResponse(200, "project deleted", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 

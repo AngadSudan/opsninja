@@ -1,12 +1,18 @@
 import * as AWS from "aws-sdk";
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config({ path: "../.env" });
+// Load environment variables from root and current directory
+dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
+dotenv.config({ path: path.resolve(process.cwd(), "apps/server/.env") });
+dotenv.config({ path: path.resolve(import.meta.dir, "../.env") });
 dotenv.config();
 
 type SecretValues = Record<string, string>;
 
 let secrets: SecretValues | null = null;
+let useSecretsManager = false;
 
 const getBootstrapEnv = (key: string) => process.env[key]?.trim();
 
@@ -66,45 +72,76 @@ export const loadConfig = async () => {
   }
 
   const secretId = getSecretId();
+  const isDevelopment = getBootstrapEnv("NODE_ENV") !== "production";
+
+  // For development, allow falling back to local .env
+  if (!secretId && isDevelopment) {
+    console.log("⚠️  AWS Secrets Manager not configured. Using local .env for development.");
+    secrets = process.env as SecretValues;
+    useSecretsManager = false;
+    return secrets;
+  }
 
   if (!secretId) {
     throw new Error(
-      "AWS_SECRETS_MANAGER_SECRET_ID or SECRETS_MANAGER_SECRET_ID is required",
+      "AWS_SECRETS_MANAGER_SECRET_ID is required in production. For development, set NODE_ENV=development to use local .env",
     );
   }
 
-  const response = await createSecretsManagerClient()
-    .getSecretValue({
-      SecretId: secretId,
-    })
-    .promise();
+  try {
+    const response = await createSecretsManagerClient()
+      .getSecretValue({
+        SecretId: secretId,
+      })
+      .promise();
 
-  secrets = parseSecretValues(
-    decodeSecretString(response.SecretString, response.SecretBinary),
-  );
+    secrets = parseSecretValues(
+      decodeSecretString(response.SecretString, response.SecretBinary),
+    );
+    useSecretsManager = true;
+    console.log("✓ Configuration loaded from AWS Secrets Manager");
+  } catch (error) {
+    console.error("Failed to load from Secrets Manager:", error);
+
+    if (isDevelopment) {
+      console.log("⚠️  Falling back to local .env for development");
+      secrets = process.env as SecretValues;
+      useSecretsManager = false;
+    } else {
+      throw error;
+    }
+  }
 
   return secrets;
 };
 
 const getSecrets = () => {
   if (!secrets) {
-    throw new Error("Application config has not been loaded");
+    throw new Error("Application config has not been loaded. Call loadConfig() first.");
   }
-
   return secrets;
 };
 
 export function getConfigValue(key: string): string | undefined;
 export function getConfigValue(key: string, fallback: string): string;
 export function getConfigValue(key: string, fallback?: string) {
-  return getSecrets()[key] ?? fallback;
+  // Try to get from loaded secrets first
+  const value = getSecrets()[key];
+  if (value !== undefined) return value;
+
+  // If not using Secrets Manager, try process.env directly
+  if (!useSecretsManager) {
+    return process.env[key] ?? fallback;
+  }
+
+  return fallback;
 }
 
 export const requireConfigValue = (key: string) => {
   const value = getConfigValue(key);
 
   if (!value) {
-    throw new Error(`${key} is required in Secrets Manager`);
+    throw new Error(`${key} is required in configuration`);
   }
 
   return value;

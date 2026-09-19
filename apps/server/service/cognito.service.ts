@@ -135,7 +135,6 @@ class CognitoService {
       secret,
       {
         expiresIn: "15d",
-        noTimestamp: true,
       },
     );
   }

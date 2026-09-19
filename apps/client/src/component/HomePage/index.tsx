@@ -1,10 +1,10 @@
-import PageScaffold from "@/component/PageScaffold";
+import Dashboard from "@/component/Dashboard";
+import WorkspaceLayout from "@/component/WorkspaceLayout";
 
 export default function HomePage() {
   return (
-    <PageScaffold
-      title="Home"
-      description="A command center for projects, chats, integrations, and meeting intelligence."
-    />
+    <WorkspaceLayout>
+      <Dashboard />
+    </WorkspaceLayout>
   );
 }
