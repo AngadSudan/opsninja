@@ -16,10 +16,13 @@ class MeetingRepository {
 
   async createMeeting(meeting: Meeting): Promise<Meeting> {
     const client = this.getClient();
+    const cleanMeeting = Object.fromEntries(
+      Object.entries(meeting).filter(([, v]) => v !== undefined)
+    );
     await client.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: meeting,
+        Item: cleanMeeting,
       }),
     );
     return meeting;

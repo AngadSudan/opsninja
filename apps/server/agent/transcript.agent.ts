@@ -26,18 +26,36 @@ export class TranscriptAgent {
       throw new Error("A meeting transcript is required");
     }
 
-    const result = await createMeetingMinutesAgent().invoke(
-      `Create Minutes of Meeting for this transcript:\n\n${transcript.trim()}`,
-    );
-    const parsed = meetingMinutesSchema.safeParse(result.structuredOutput);
+    console.log(`[TranscriptAgent] Starting to process transcript (${transcript.length} chars)`);
 
-    if (!parsed.success) {
-      throw new Error(
-        "The meeting-minutes agent returned invalid structured output",
+    try {
+      const agent = createMeetingMinutesAgent();
+      const result = await agent.invoke(
+        `Create Minutes of Meeting for this transcript:\n\n${transcript.trim()}`,
       );
-    }
 
-    return parsed.data;
+      console.log(`[TranscriptAgent] Agent completed with stopReason: ${result.stopReason}`);
+
+      if (!result.structuredOutput) {
+        console.error("[TranscriptAgent] No structuredOutput returned from agent");
+        throw new Error("Agent did not return structured output");
+      }
+
+      const parsed = meetingMinutesSchema.safeParse(result.structuredOutput);
+
+      if (!parsed.success) {
+        console.error("[TranscriptAgent] Schema validation failed:", parsed.error.errors);
+        throw new Error(
+          `Meeting-minutes agent returned invalid structured output: ${JSON.stringify(parsed.error.errors)}`,
+        );
+      }
+
+      console.log(`[TranscriptAgent] Successfully created minutes with ${parsed.data.actionItems.length} action items`);
+      return parsed.data;
+    } catch (error) {
+      console.error("[TranscriptAgent] Error processing transcript:", error);
+      throw error;
+    }
   }
 }
 

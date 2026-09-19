@@ -16,7 +16,7 @@ export async function classifyIntent(text: string): Promise<Intent> {
 
   try {
     const client = new OpenRouter({ apiKey: requireConfigValue("OPENROUTER_API_KEY") });
-    const response = await client.chat.completions.create({
+    const response = await client.messages.create({
       model: "openai/gpt-4o-mini",
       messages: [
         {
@@ -27,9 +27,14 @@ export async function classifyIntent(text: string): Promise<Intent> {
     });
 
     const label = response.choices?.[0]?.message?.content?.trim().toUpperCase() as Intent;
-    if (VALID_INTENTS.includes(label)) return label;
+    if (VALID_INTENTS.includes(label)) {
+      console.log(`[IntentClassifier] Classified as: ${label}`);
+      return label;
+    }
+    console.warn(`[IntentClassifier] Invalid intent label returned: ${label}`);
     return "AMBIGUOUS";
-  } catch {
+  } catch (error) {
+    console.error("[IntentClassifier] Error classifying intent:", error);
     return "AMBIGUOUS";
   } finally {
     clearTimeout(timer);

@@ -16,10 +16,13 @@ class MeetingRecordRepository {
 
   async createRecord(record: MeetingRecord): Promise<MeetingRecord> {
     const client = this.getClient();
+    const cleanRecord = Object.fromEntries(
+      Object.entries(record).filter(([, v]) => v !== undefined)
+    );
     await client.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: record,
+        Item: cleanRecord,
       }),
     );
     return record;

@@ -64,19 +64,53 @@ export const createOrchestratorAgent = (context: OrchestratorContext = {}) => {
   });
 };
 
-const getResponseText = (agent: Agent) =>
-  agent.messages
-    .at(-1)
-    ?.content.filter((block: any) => block.type === "textBlock")
+const getResponseText = (agent: Agent) => {
+  const lastMessage = agent.messages.at(-1);
+
+  if (!lastMessage) {
+    console.warn("[OrchestratorAgent] No messages in agent.messages array");
+    return "";
+  }
+
+  console.log(`[OrchestratorAgent] Last message role: ${lastMessage.role}, content blocks: ${lastMessage.content?.length ?? 0}`);
+
+  // Try to find textBlock type
+  const textBlocks = lastMessage.content
+    ?.filter((block: any) => block.type === "textBlock")
     .map((block: any) => block.text)
-    .join("") ?? "";
+    ?? [];
+
+  if (textBlocks.length > 0) {
+    console.log(`[OrchestratorAgent] Found ${textBlocks.length} textBlock(s)`);
+    return textBlocks.join("");
+  }
+
+  // Fallback: try to find text field in any block
+  console.warn("[OrchestratorAgent] No textBlock found, attempting fallback block inspection");
+  const allContent = lastMessage.content ?? [];
+  for (let i = 0; i < allContent.length; i++) {
+    const block = allContent[i];
+    console.log(`[OrchestratorAgent] Block ${i} type: ${(block as any).type}, keys: ${Object.keys(block).join(", ")}`);
+    if (typeof (block as any).text === "string") {
+      console.log(`[OrchestratorAgent] Found text field in block ${i}`);
+      return (block as any).text;
+    }
+  }
+
+  console.error("[OrchestratorAgent] Could not extract text from any block, content structure:", allContent);
+  return "";
+};
 
 export class OrchestratorAgent {
   async respond(message: string, context: OrchestratorContext = {}) {
     if (!message.trim()) throw new Error("A chat message is required");
+
+    console.log(`[OrchestratorAgent] Starting orchestrator for message (${message.length} chars)`);
+
     const agent = createOrchestratorAgent(context);
 
     if (context.history?.length) {
+      console.log(`[OrchestratorAgent] Adding ${context.history.length} history turns`);
       for (const turn of context.history) {
         agent.messages.push({
           role: turn.role,
@@ -85,16 +119,33 @@ export class OrchestratorAgent {
       }
     }
 
-    const result = await agent.invoke(message.trim(), {
-      limits: {
-        turns: context.maxTurns ?? 8,
-        totalTokens: context.maxTokens ?? 16_000,
-      },
-    });
-    return {
-      answer: getResponseText(agent),
-      stopReason: result.stopReason,
-    };
+    try {
+      console.log(`[OrchestratorAgent] Invoking agent with limits: turns=${context.maxTurns ?? 8}, tokens=${context.maxTokens ?? 16_000}`);
+      const result = await agent.invoke(message.trim(), {
+        limits: {
+          turns: context.maxTurns ?? 8,
+          totalTokens: context.maxTokens ?? 16_000,
+        },
+      });
+
+      console.log(`[OrchestratorAgent] Agent completed with stopReason: ${result.stopReason}`);
+
+      const answer = getResponseText(agent);
+
+      if (!answer.trim()) {
+        console.warn("[OrchestratorAgent] Extracted answer is empty");
+      } else {
+        console.log(`[OrchestratorAgent] Successfully extracted answer (${answer.length} chars)`);
+      }
+
+      return {
+        answer,
+        stopReason: result.stopReason,
+      };
+    } catch (error) {
+      console.error("[OrchestratorAgent] Error during invocation:", error);
+      throw error;
+    }
   }
 }
 
