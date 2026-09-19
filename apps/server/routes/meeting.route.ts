@@ -22,7 +22,7 @@ meetingRouter.post("/", async (req: Request, res: Response) => {
     return res.json(apiResponse(200, "meeting processed", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -35,7 +35,7 @@ meetingRouter.get("/", async (req: Request, res: Response) => {
     return res.json(apiResponse(200, "meetings fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -48,7 +48,7 @@ meetingRouter.get("/:meetingId/summary", async (req: Request, res: Response) => 
     return res.json(apiResponse(200, "summary fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -61,7 +61,7 @@ meetingRouter.get("/:meetingId", async (req: Request, res: Response) => {
     return res.json(apiResponse(200, "meeting fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 

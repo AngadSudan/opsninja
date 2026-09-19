@@ -20,8 +20,12 @@ class NeptuneClient {
     return this.instance;
   }
 
-  public async executeCommand(command: ExecuteOpenCypherQueryCommand) {
-    return await this.client?.send(command);
+  public async executeCommand(
+    command: ExecuteOpenCypherQueryCommand,
+    options?: any,
+  ) {
+    if (!this.client) throw new Error("Neptune client is not initialized");
+    return await this.client.send(command, options);
   }
 }
 

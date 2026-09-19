@@ -13,13 +13,20 @@ class EmbeddingService {
 
   async embed(text: string): Promise<number[]> {
     try {
-      const response = await this.getClient().embeddings.generate({
+      const resultOrError = await this.getClient().embeddings.generate({
         requestBody: {
           model: "openai/text-embedding-3-small",
           input: text,
         },
       });
-      const embedding = response.data?.[0]?.embedding;
+
+      // The OpenRouter SDK returns a Result<T, E> discriminated union.
+      if (!resultOrError.ok) {
+        console.error("[EmbeddingService] API error:", resultOrError.error);
+        throw new Error(`Embedding API error: ${String(resultOrError.error)}`);
+      }
+
+      const embedding = resultOrError.value?.data?.[0]?.embedding;
       if (!embedding) {
         console.warn("[EmbeddingService] No embedding returned from API");
         return [];

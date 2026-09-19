@@ -3,7 +3,7 @@ import type { JiraCredentials } from "./jira.service";
 import jiraService from "./jira.service";
 import type { SlackCredentials } from "./slack.service.ts";
 import slackService from "./slack.service.ts";
-import transcriptProcessorService from "./transcriptProcessor.service";
+import transcriptAgent from "../agent/transcript.agent";
 import vaultService from "./vault.service.ts";
 import graphService from "./graph.service";
 
@@ -25,11 +25,8 @@ export class MeetingWorkflowService {
     console.log(`[MeetingWorkflowService] Starting transcript ingestion...`);
 
     let minutes;
-    let structured;
     try {
-      structured =
-        await transcriptProcessorService.processTranscript(transcript);
-      minutes = structured.minutes;
+      minutes = await transcriptAgent.createMinutes(transcript);
       console.log(
         `[MeetingWorkflowService] Transcript processed: ${minutes.actionItems.length} actions, ${minutes.decisions.length} decisions`,
       );
@@ -52,9 +49,9 @@ export class MeetingWorkflowService {
         actionNoteId: `action-${Date.now()}-${Math.random()}`,
         type: action.externalAction as "jira" | "slack",
         title: action.title,
-        description: action.description,
-        target: action.target,
-        assignee: action.assignee,
+        description: action.description ?? undefined,
+        target: action.target ?? undefined,
+        assignee: action.assignee ?? undefined,
         priority: action.priority,
       }));
 
@@ -64,11 +61,11 @@ export class MeetingWorkflowService {
 
     return {
       minutes,
-      shortname: structured.shortname,
-      description: structured.description,
+      shortname: minutes.title,
+      description: minutes.summary,
       meeting: { id: `meeting-${Date.now()}` },
       proposals: actions,
-      actions: structured.actions,
+      actions: minutes.actionItems,
     };
   }
 

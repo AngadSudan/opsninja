@@ -1,6 +1,6 @@
 # Ops-Ninja
 
-The project takes in the Minutes of Meeting and use them inorder to generate a meeting summary. Once the summary is created it is saved in an obsidian vault and then offer some actions to be performed - add this issue to JIRA, send a message on slack. It gives you a custom chatbot which treats the obsidian vault as the source of the truth and provides you with the output along with these actions performed.
+The project takes in the Minutes of Meeting and use them inorder to generate a meeting summary. Once the summary is created it is saved in an obsidian vault , graph db and then offer some actions to be performed - add this issue to JIRA, send a message on slack. It gives you a custom chatbot which treats the obsidian vault as the source of the truth and provides you with the output along with these actions performed.
 
 # What we provide
 

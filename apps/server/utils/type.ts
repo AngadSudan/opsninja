@@ -75,7 +75,7 @@ export interface Meeting {
   meeting_id: string;
   project_id: string;
   uploaded_by: string;
-  meeting_platform: "google_meet" | "zoom" | "slack" | "discord";
+  meeting_platform: string;
   original_transcript: string;
   created_at: string;
   updated_at: string;
@@ -121,6 +121,12 @@ export interface MeetingActionItem {
     "create_jira_issue" | "send_slack_message" | "create_calendar_event";
   error_message?: string;
   integration_platform: "jira" | "slack" | "calendar";
+  title?: string;
+  description?: string;
+  assignee?: string;
+  due_date?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  target?: string;
   created_at: string;
   updated_at: string;
 }
