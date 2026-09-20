@@ -33,7 +33,7 @@ export default function GetStartedButton({
     return (
       <Link
         href="/home"
-        className={`${baseStyles} ${variantStyles[variant]} ${className} text-white`}
+        className={`${baseStyles} ${variantStyles[variant]} ${className} !text-white hover:!text-white`}
       >
         Open workspace
       </Link>

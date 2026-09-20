@@ -125,7 +125,7 @@ export default function WorkspaceLayout({
   );
 
   return (
-    <div className="min-h-screen bg-[var(--page)] text-[var(--ink)]">
+    <div className="min-h-screen bg-[var(--page)] font-[family-name:var(--font-inter)] text-[var(--ink)]">
       {mobileMenuOpen && (
         <button
           type="button"
