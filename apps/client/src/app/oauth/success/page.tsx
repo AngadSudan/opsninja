@@ -4,24 +4,28 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 export default function AuthSuccessPage() {
   const router = useRouter();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  );
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     async function setupCookie() {
       try {
-        const response = await fetch(`${API_BASE}/api/v1/auth/setup-cookie`, {
+        let response = await fetch(`${API_BASE}/api/v1/auth/setup-cookie`, {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
         });
-
+        const body = await response.json();
+        console.log(response);
         if (!response.ok) {
           throw new Error(`Failed to setup cookie: ${response.statusText}`);
         }
@@ -34,7 +38,7 @@ export default function AuthSuccessPage() {
       } catch (error) {
         console.error("Cookie setup error:", error);
         setErrorMessage(
-          error instanceof Error ? error.message : "Unknown error occurred"
+          error instanceof Error ? error.message : "Unknown error occurred",
         );
         setStatus("error");
       }
