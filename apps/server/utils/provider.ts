@@ -193,7 +193,12 @@ export const cognitoOAuthInitiator = (req: Request, res: Response) => {
     console.log("Cognito initiator error:", error);
     return res
       .status(302)
-      .redirect(getConfigValue("FAILED_OAUTH_URL", "http://localhost:3000/?error=auth_failed"));
+      .redirect(
+        getConfigValue(
+          "FAILED_OAUTH_URL",
+          "http://localhost:3000/?error=auth_failed",
+        ),
+      );
   }
 };
 
@@ -216,21 +221,24 @@ export const cognitoOAuthHandler = async (req: Request, res: Response) => {
 
     res.cookie(APPLICATION_TOKEN_COOKIE, applicationToken, {
       httpOnly: true,
-      secure: isProduction(),
+      secure: true,
       sameSite: "lax",
+      domain: ".angad.space",
+      path: "/",
       maxAge: FIFTEEN_DAYS_IN_MS,
     });
 
-    const redirectUrl = appendQueryParams(requireConfigValue("SUCCESS_OAUTH_URL"), {
-      user_id: user.user_id,
-    });
+    const redirectUrl = appendQueryParams(
+      requireConfigValue("SUCCESS_OAUTH_URL"),
+      {
+        user_id: user.user_id,
+      },
+    );
 
     return res.status(302).redirect(redirectUrl);
   } catch (error) {
     console.log(error);
-    return res
-      .status(302)
-      .redirect(requireConfigValue("FAILED_OAUTH_URL"));
+    return res.status(302).redirect(requireConfigValue("FAILED_OAUTH_URL"));
   }
 };
 
