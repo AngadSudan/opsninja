@@ -13,14 +13,14 @@ export default function GetStartedButton({
   variant = "small",
   className = "",
 }: GetStartedButtonProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const baseStyles =
     "inline-flex items-center justify-center font-semibold transition-all duration-200 cursor-pointer select-none active:scale-[0.98]";
 
   const variantStyles = {
     small:
-      "rounded-md bg-[#20251f] px-4 py-2 text-xs sm:text-sm text-white shadow-none hover:bg-[#343e33]",
+      "min-w-[9.5rem] whitespace-nowrap rounded-md bg-[#20251f] px-4 py-2 text-xs text-white shadow-none hover:bg-[#343e33] sm:text-sm",
     large:
       "rounded-md bg-[#20251f] px-5 py-3 text-sm sm:text-base font-bold text-white shadow-none hover:bg-[#323c31]",
     outline:
@@ -47,9 +47,16 @@ export default function GetStartedButton({
     <button
       type="button"
       onClick={() => redirectToCognito()}
+      disabled={isLoading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
-      <span>{variant === "large" || variant === "white" ? "Create your workspace" : "Get started"}</span>
+      <span>
+        {isLoading
+          ? "Checking access"
+          : variant === "large" || variant === "white"
+            ? "Create your workspace"
+            : "Get started"}
+      </span>
       <span className="ml-1.5 transition-transform group-hover:translate-x-0.5">
         →
       </span>
