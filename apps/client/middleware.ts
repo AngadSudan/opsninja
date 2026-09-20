@@ -14,16 +14,22 @@ const PUBLIC_PATHS = [
 ];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("application_token");
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get("application_token");
+
+  console.log("MIDDLEWARE PATH:", pathname);
+  console.log("MIDDLEWARE TOKEN:", token ? "FOUND" : "NOT FOUND");
+  console.log(
+    "MIDDLEWARE COOKIES:",
+    request.cookies.getAll().map((cookie) => cookie.name),
+  );
 
   const isPublic = PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 
   if (!token && !isPublic) {
-    const url = new URL("/signin", request.url);
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   return NextResponse.next();
