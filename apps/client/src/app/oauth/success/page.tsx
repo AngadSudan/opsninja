@@ -26,6 +26,7 @@ export default function AuthSuccessPage() {
         });
         const body = await response.json();
         console.log(response);
+        console.log(body);
         if (!response.ok) {
           throw new Error(`Failed to setup cookie: ${response.statusText}`);
         }
