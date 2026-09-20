@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandLogo from "@/component/BrandLogo";
 
 const sections = [
   {
@@ -10,11 +11,21 @@ const sections = [
           records. Depending on how you use the service, we may handle:
         </p>
         <ul>
-          <li>Meeting minutes, summaries, decisions, risks, and action items.</li>
-          <li>Project and workspace details needed to organize those records.</li>
+          <li>
+            Meeting minutes, summaries, decisions, risks, and action items.
+          </li>
+          <li>
+            Project and workspace details needed to organize those records.
+          </li>
           <li>Messages you send to the Ops-Ninja chatbot and its responses.</li>
-          <li>Account and technical information needed to authenticate and operate the service.</li>
-          <li>Information returned by connected services such as Jira, Slack, or Obsidian.</li>
+          <li>
+            Account and technical information needed to authenticate and operate
+            the service.
+          </li>
+          <li>
+            Information returned by connected services such as Jira, Slack, or
+            Obsidian.
+          </li>
         </ul>
       </>
     ),
@@ -23,12 +34,25 @@ const sections = [
     title: "How we use information",
     content: (
       <>
-        <p>We use information to provide and improve the service, including to:</p>
+        <p>
+          We use information to provide and improve the service, including to:
+        </p>
         <ul>
-          <li>Generate meeting summaries and extract decisions, risks, and commitments.</li>
-          <li>Store and retrieve project knowledge for the Ops-Ninja chatbot.</li>
-          <li>Carry out actions you request, such as creating Jira issues or sending Slack messages.</li>
-          <li>Authenticate users, protect the service, troubleshoot problems, and maintain reliability.</li>
+          <li>
+            Generate meeting summaries and extract decisions, risks, and
+            commitments.
+          </li>
+          <li>
+            Store and retrieve project knowledge for the Ops-Ninja chatbot.
+          </li>
+          <li>
+            Carry out actions you request, such as creating Jira issues or
+            sending Slack messages.
+          </li>
+          <li>
+            Authenticate users, protect the service, troubleshoot problems, and
+            maintain reliability.
+          </li>
         </ul>
         <p>
           We do not sell your personal information. We use meeting and project
@@ -80,10 +104,10 @@ const sections = [
     content: (
       <>
         <p>
-          Ops-Ninja is intended for workplace and project use and is not directed
-          to children under 13. We may update this policy as the service changes.
-          When we do, we will post the updated version on this page and revise
-          the effective date.
+          Ops-Ninja is intended for workplace and project use and is not
+          directed to children under 13. We may update this policy as the
+          service changes. When we do, we will post the updated version on this
+          page and revise the effective date.
         </p>
         <p>
           For privacy questions, please contact the person or organization that
@@ -93,40 +117,6 @@ const sections = [
     ),
   },
 ];
-
-function BrandLogo({ className = "h-7 w-7" }: { className?: string }) {
-  return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full drop-shadow-sm"
-      >
-        <rect width="32" height="32" rx="9" fill="#20251f" />
-        <path
-          d="M8 22L16 10L24 22H8Z"
-          fill="#59745b"
-          fillOpacity="0.35"
-        />
-        <path
-          d="M10 21L16 12L22 21H10Z"
-          stroke="#b7d0b7"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="18" r="2.2" fill="#16a34a" />
-        <path
-          d="M7 16H25"
-          stroke="#ffffff"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          strokeOpacity="0.4"
-        />
-      </svg>
-    </div>
-  );
-}
 
 export const metadata = {
   title: "Privacy Policy | Ops Ninja",
@@ -193,7 +183,10 @@ export default function PrivacyPolicyPage() {
           </aside>
           <div className="space-y-12">
             {sections.map((section) => (
-              <section key={section.title} className="border-b border-[#20251f]/10 pb-12 last:border-b-0">
+              <section
+                key={section.title}
+                className="border-b border-[#20251f]/10 pb-12 last:border-b-0"
+              >
                 <h2 className="text-2xl font-bold tracking-tight text-[#20251f]">
                   {section.title}
                 </h2>

@@ -4,32 +4,44 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserMenu from "@/component/UserMenu";
+import BrandLogo from "@/component/BrandLogo";
 
-function BrandLogo({ className = "h-6 w-6" }: { className?: string }) {
+function MenuIcon({ open }: { open: boolean }) {
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full drop-shadow-xs"
-      >
-        <rect width="32" height="32" rx="8" fill="#2d382c" />
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      aria-hidden="true"
+    >
+      {open ? (
         <path
-          d="M8 22L16 10L24 22H8Z"
-          fill="#59745b"
-          fillOpacity="0.45"
-        />
-        <path
-          d="M10 21L16 12L22 21H10Z"
-          stroke="#b7d0b7"
-          strokeWidth="1.8"
+          strokeLinecap="round"
           strokeLinejoin="round"
+          d="M6 18 18 6M6 6l12 12"
         />
-        <circle cx="16" cy="18" r="2.2" fill="#16a34a" />
-      </svg>
-    </div>
+      ) : (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 7h16M4 12h16M4 17h16"
+        />
+      )}
+    </svg>
   );
+}
+
+const primaryNav = [
+  { href: "/home", label: "Home" },
+  { href: "/projects", label: "Projects" },
+  { href: "/integrations", label: "Integrations" },
+];
+
+function getProjectId(pathname: string) {
+  const match = pathname.match(/^\/project\/([^/]+)/);
+  return match?.[1];
 }
 
 export default function WorkspaceLayout({
@@ -39,144 +51,120 @@ export default function WorkspaceLayout({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const projectId = getProjectId(pathname);
 
-  const isDashboard = pathname === "/home";
-  const isProjects = pathname === "/projects" || pathname.startsWith("/project");
-  const isIntegrations = pathname === "/integrations";
+  const projectNav = projectId
+    ? [
+        { href: `/project/${projectId}`, label: "Overview" },
+        { href: `/project/${projectId}/meeting-summary`, label: "Records" },
+        { href: `/project/${projectId}/chat`, label: "Chat" },
+      ]
+    : [];
 
-  const getSectionTitle = () => {
-    if (isDashboard) return "Command Center";
-    if (isProjects) return "Projects";
-    if (isIntegrations) return "Integrations";
-    return "Workspace";
+  const isActive = (href: string) => {
+    if (href === "/home") return pathname === href;
+    if (href === "/projects") return pathname === "/projects";
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const navLinks = [
-    {
-      href: "/home",
-      label: "Command Center",
-      icon: (
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
-      active: isDashboard,
-    },
-    {
-      href: "/projects",
-      label: "Projects & Vaults",
-      icon: (
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-        </svg>
-      ),
-      active: isProjects,
-    },
-    {
-      href: "/integrations",
-      label: "Connected Tools",
-      icon: (
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-        </svg>
-      ),
-      active: isIntegrations,
-    },
-  ];
+  const navContent = (
+    <>
+      <Link
+        href="/home"
+        className="flex min-h-12 items-center gap-3 border-b border-[var(--line)] px-5 py-4"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <BrandLogo className="h-20 w-20" priority />
+        <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
+      </Link>
+
+      <nav className="grid gap-1 px-3 py-4 text-sm" aria-label="Workspace">
+        {primaryNav.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`rounded-[5px] px-3 py-2.5 font-semibold transition ${
+              isActive(item.href)
+                ? "bg-white text-[var(--orange-dark)]"
+                : "text-[var(--ink-2)] hover:bg-white hover:text-[var(--ink)]"
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      {projectNav.length > 0 && (
+        <nav
+          className="border-t border-[var(--line)] px-3 py-4 text-sm"
+          aria-label="Project"
+        >
+          <p className="px-3 pb-2 text-xs font-semibold text-[var(--ink-3)]">
+            Project
+          </p>
+          <div className="grid gap-1">
+            {projectNav.map((item) => (
+              <Link
+                key={`${item.label}-${item.href}`}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`rounded-[5px] px-3 py-2.5 font-semibold transition ${
+                  isActive(item.href)
+                    ? "bg-white text-[var(--orange-dark)]"
+                    : "text-[var(--ink-2)] hover:bg-white hover:text-[var(--ink)]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
+    </>
+  );
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9f7]">
-      {/* Mobile backdrop */}
+    <div className="min-h-screen bg-[var(--page)] text-[var(--ink)]">
       {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
+          aria-label="Close navigation"
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-white/10 bg-[#1c221b] px-3 py-4 text-[#e9eee7] transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-[var(--line)] bg-[var(--page)] transition-transform duration-200 lg:translate-x-0 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Link
-          href="/home"
-          className="flex items-center gap-3 px-2 pb-5 text-base font-extrabold text-white tracking-tight"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <BrandLogo />
-          <div className="flex flex-col">
-            <span className="leading-none">Ops Ninja</span>
-            <span className="mt-1 text-[10px] font-semibold text-[#8ca38a]">
-              Operational Memory
-            </span>
-          </div>
-        </Link>
-
-        <nav className="grid gap-1" aria-label="Workspace">
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
-                item.active
-                  ? "bg-[#59745b] text-white shadow-md shadow-[#59745b]/20"
-                  : "text-[#aeb9ac] hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <span className="shrink-0" aria-hidden="true">
-                {item.icon}
-              </span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="mt-auto border-t border-white/10 px-3 pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#9eaa9b]">
-              <span className="h-2 w-2 rounded-full bg-[#16a34a] animate-pulse" />
-              <span>Vault Active</span>
-            </div>
-            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-mono font-bold text-[#b7d0b7]">
-              E2EE
-            </span>
-          </div>
-          <p className="mt-1 text-[10px] text-[#7a8678]">
-            AI Meeting Gatekeeper v2.4
-          </p>
-        </div>
+        {navContent}
       </aside>
 
-      {/* Main Content */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#dfe5dc] bg-white/95 px-5 backdrop-blur lg:px-8">
+      <div className="min-w-0 lg:pl-64">
+        <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between border-b border-[var(--line)] bg-[var(--page)]/92 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#dfe5dc] text-[#596257] lg:hidden"
-              aria-label="Open sidebar"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-[5px] border border-[var(--line)] bg-white text-[var(--ink)] lg:hidden"
+              aria-label="Open navigation"
             >
-              ☰
+              <MenuIcon open={mobileMenuOpen} />
             </button>
-            <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#59745b]">
-                Ops Ninja Workspace
-              </p>
-              <h2 className="text-sm font-bold text-[#20251f]">
-                {getSectionTitle()}
-              </h2>
-            </div>
+            <Link
+              href="/"
+              className="hidden text-sm font-semibold text-[var(--ink-2)] hover:text-[var(--ink)] sm:inline-flex"
+            >
+              Marketing site
+            </Link>
           </div>
-          <div className="flex items-center gap-3">
-            <UserMenu />
-          </div>
+          <UserMenu />
         </header>
 
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0">{children}</main>
       </div>
     </div>
   );

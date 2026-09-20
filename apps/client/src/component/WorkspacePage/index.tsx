@@ -56,12 +56,12 @@ function ProjectsSection() {
         </div>
       )}
       {isError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-xs text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-xs text-red-700">
           Projects could not be loaded. Check your connection and try again.
         </div>
       )}
       {!isLoading && !isError && projects?.length === 0 && (
-        <div className="rounded-3xl border border-dashed border-[#dfe5dc] bg-white p-12 text-center text-sm text-[#596257]">
+        <div className="rounded-lg border border-dashed border-[#dfe5dc] bg-white p-12 text-center text-sm text-[#596257]">
           No projects found. Create a project to start capturing meeting memory.
         </div>
       )}
@@ -71,17 +71,21 @@ function ProjectsSection() {
             <Link
               key={project.project_id}
               href={`/project/${project.project_id}`}
-              className="group rounded-3xl border border-[#dfe5dc] bg-white p-7 sm:p-8 shadow-xs transition hover:border-[#59745b] hover:shadow-md hover:shadow-[#59745b]/5"
+              className="group rounded-lg border border-[#dfe5dc] bg-white p-7 shadow-xs transition hover:border-[#59745b] hover:shadow-md hover:shadow-[#59745b]/5 sm:p-8"
             >
               <div className="flex items-start justify-between gap-4">
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf2e8] text-lg text-[#59745b] shadow-2xs transition group-hover:scale-105"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#eaf2e8] text-lg text-[#59745b] shadow-2xs transition group-hover:scale-105"
                   aria-hidden="true"
                 >
-                  ▰
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4.1l2 2H18.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" />
+                  </svg>
                 </span>
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fafaf8] text-sm text-[#8a9587] transition group-hover:translate-x-1 group-hover:bg-[#20251f] group-hover:text-white">
-                  →
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fafaf8] text-sm text-[#8a9587] transition group-hover:translate-x-1 group-hover:bg-[#20251f] group-hover:text-white">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                  </svg>
                 </span>
               </div>
               <h2 className="mt-6 text-xl font-bold tracking-tight text-[#20251f]">
@@ -128,7 +132,7 @@ function IntegrationsSection() {
         </div>
       )}
       {isError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-xs text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-xs text-red-700">
           Integrations could not be loaded. Check your connection and try again.
         </div>
       )}
@@ -139,7 +143,7 @@ function IntegrationsSection() {
             return (
               <article
                 key={platform}
-                className="rounded-3xl border border-[#dfe5dc] bg-white p-7 sm:p-8 shadow-xs"
+                className="rounded-lg border border-[#dfe5dc] bg-white p-7 shadow-xs sm:p-8"
               >
                 <span className={`text-3xl ${color}`} aria-hidden="true">
                   {symbol}

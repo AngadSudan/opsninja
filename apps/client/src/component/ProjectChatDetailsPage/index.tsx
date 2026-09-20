@@ -1,225 +1,279 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useProject } from "@/hooks/useProject";
 import { useChat } from "@/hooks/useChat";
 import { useMessages, useSendMessage } from "@/hooks/useMessage";
+import MarkdownContent from "@/component/MarkdownContent";
+import type { ActionProposal, Message } from "@/types/api.types";
 
 type ProjectChatDetailsPageProps = {
   chatId: string;
   projectId: string;
 };
 
+function getMessageContent(message: Message) {
+  return message.structured_response || message.message;
+}
+
+function parseActions(message: Message): ActionProposal[] {
+  if (!message.proposed_actions) return [];
+
+  try {
+    const parsed = JSON.parse(message.proposed_actions);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function MessageItem({ message }: { message: Message }) {
+  const isUser = message.message_type === "USER";
+  const actions = parseActions(message);
+  const content = getMessageContent(message);
+
+  return (
+    <article className={`message-row ${isUser ? "user" : "system"}`}>
+      {!isUser && <span className="message-avatar-token">ON</span>}
+      <div className="message-body">
+        <div className="mb-3 flex items-center justify-between gap-3 text-xs font-bold text-[var(--ink-3)]">
+          <span>{isUser ? "You" : "Ops Ninja"}</span>
+          <time dateTime={message.created_at}>
+            {new Date(message.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </time>
+        </div>
+        {isUser ? (
+          <p className="whitespace-pre-wrap text-sm leading-7">{content}</p>
+        ) : (
+          <MarkdownContent content={content} />
+        )}
+        {actions.length > 0 && (
+          <div className="mt-4 border-t border-[var(--line)] pt-4">
+            <p className="text-xs font-bold text-[var(--ink-3)]">
+              Proposed actions
+            </p>
+            <div className="mt-3 grid gap-2">
+              {actions.map((action, index) => (
+                <div
+                  key={`${action.type}-${action.title}-${index}`}
+                  className="border border-[var(--line)] bg-[var(--page)] p-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-bold text-[var(--ink)]">
+                      {action.title}
+                    </span>
+                    <span className="status-text status-pending">
+                      {action.type}
+                    </span>
+                  </div>
+                  {action.description && (
+                    <p className="mt-2 leading-6 text-[var(--ink-2)]">
+                      {action.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {isUser && <span className="message-avatar-token">You</span>}
+    </article>
+  );
+}
+
 export default function ProjectChatDetailsPage({
   chatId,
   projectId,
 }: ProjectChatDetailsPageProps) {
-  const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  const { data: project } = useProject(projectId);
-  const { data: chat } = useChat(projectId, chatId);
-  const { data: messages, isLoading, isError } = useMessages(projectId, chatId);
+  const { data: chat, isLoading: chatLoading } = useChat(projectId, chatId);
+  const {
+    data: messages,
+    isLoading: messagesLoading,
+    isError,
+  } = useMessages(projectId, chatId);
   const sendMessage = useSendMessage(projectId, chatId);
+  const [draft, setDraft] = useState("");
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const threadRef = useRef<HTMLDivElement | null>(null);
+
+  const messageList = useMemo(() => messages ?? [], [messages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sendMessage.isPending]);
+    const thread = threadRef.current;
+    if (thread) thread.scrollTop = thread.scrollHeight;
+  }, [messageList.length, sendMessage.isPending]);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const submitMessage = async (event: FormEvent) => {
     event.preventDefault();
-    const text = input.trim();
-    if (!text || sendMessage.isPending) return;
-    sendMessage.mutate(text);
-    setInput("");
-  }
+    const text = draft.trim();
+    if (!text) return;
 
-  const handleSuggestionClick = (suggestion: string) => {
-    if (sendMessage.isPending) return;
-    sendMessage.mutate(suggestion);
+    setDraft("");
+    await sendMessage.mutateAsync(text);
+    textAreaRef.current?.focus();
   };
 
-  const suggestions = [
-    "What key decisions were captured in the latest meeting?",
-    "Which action items are currently pending?",
-    "Summarize the technical dependencies for this project.",
-  ];
-
   return (
-    <div className="workspace-page flex h-[calc(100vh-56px)] max-w-none flex-col py-5">
-      {/* Breadcrumb & Header */}
-      <div className="mb-6 shrink-0">
-        <nav className="flex items-center gap-2 text-xs font-semibold text-[#8a9587]">
-          <Link
-            href={`/project/${projectId}`}
-            className="text-[#59745b] transition hover:text-[#20251f]"
-          >
-            {project?.name || "Project"}
-          </Link>
-          <span>/</span>
-          <Link
-            href={`/project/${projectId}/chat`}
-            className="text-[#59745b] transition hover:text-[#20251f]"
-          >
-            Chat Threads
-          </Link>
-          <span>/</span>
-          <span className="text-[#20251f] font-bold">{chat?.chat_name || "Conversation"}</span>
-        </nav>
+    <div className="chat-page-shell">
+      <nav className="chat-breadcrumb flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--ink-3)]">
+        <Link
+          href={`/project/${projectId}`}
+          className="hover:text-[var(--ink)]"
+        >
+          Project
+        </Link>
+        <span>/</span>
+        <Link
+          href={`/project/${projectId}/chat`}
+          className="hover:text-[var(--ink)]"
+        >
+          Chat
+        </Link>
+        <span>/</span>
+        <span className="truncate">
+          {chat?.chat_name || (chatLoading ? "Loading" : "Conversation")}
+        </span>
+      </nav>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#20251f] sm:text-3xl">
-              {chat?.chat_name || "Chat Thread"}
-            </h1>
-            <p className="mt-1 text-xs text-[#596257]">
-              Grounding questions in Project {project?.name || "workspace"} records & MOM vault
-            </p>
-          </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#dce6da] bg-[#f1f7ef] px-3.5 py-1.5 text-xs font-bold text-[#426347]">
-            <span className="h-2 w-2 rounded-full bg-[#16a34a] animate-pulse" />
-            Vault aware
-          </span>
+      <header className="chat-header grid gap-4 border-b border-[var(--line)] px-5 py-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-10">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            {chat?.chat_name ||
+              (chatLoading ? "Loading conversation..." : "Conversation")}
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--ink-2)]">
+            Ask about records, decisions, actions, and evidence from meeting
+            notes.
+          </p>
         </div>
-      </div>
-
-      {/* Chat messages viewport */}
-      <div className="flex flex-1 flex-col overflow-hidden border border-[#dfe5dc] bg-white shadow-none">
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
-          {isLoading && (
-            <div className="flex justify-center py-12">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#59745b]">
-                Loading conversation…
-              </span>
+        <div className="border-y border-[var(--line)] py-4 text-sm lg:self-end">
+          <dl className="grid gap-3">
+            <div className="flex justify-between gap-4">
+              <dt className="text-[var(--ink-3)]">Messages</dt>
+              <dd className="font-bold">{messageList.length}</dd>
             </div>
-          )}
-
-          {isError && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
-              Failed to load conversation history. Check your connection and try again.
+            <div className="flex justify-between gap-4">
+              <dt className="text-[var(--ink-3)]">Status</dt>
+              <dd className="status-text status-success">Ready</dd>
             </div>
-          )}
+          </dl>
+        </div>
+      </header>
 
-          {!isLoading && messages?.length === 0 && (
-            <div className="mx-auto my-auto max-w-lg text-center py-16 px-4">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#edf3ff] text-2xl text-[#3564a8] shadow-xs">
-                ✦
-              </div>
-              <h2 className="mt-5 text-lg font-bold text-[#20251f]">
-                What would you like to explore?
-              </h2>
-              <p className="mt-2 text-xs leading-relaxed text-[#596257]">
-                Ops Ninja has this project&apos;s meeting minutes, action items, and connected integrations in active memory.
-              </p>
-
-              <div className="mt-6 flex flex-col gap-2.5">
-                {suggestions.map((text) => (
-                  <button
-                    key={text}
-                    type="button"
-                    onClick={() => handleSuggestionClick(text)}
-                    className="rounded-2xl border border-[#dfe5dc] bg-[#fafaf8] p-3.5 text-left text-xs font-medium text-[#596257] transition hover:border-[#59745b] hover:bg-white hover:text-[#20251f] shadow-2xs"
-                  >
-                    “{text}”
-                  </button>
+      <main className="chat-workspace">
+        <section className="chat-column min-w-0">
+          <div ref={threadRef} className="chat-thread">
+            {messagesLoading && (
+              <div className="message-column">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="h-28 animate-pulse border border-[var(--line)] bg-white"
+                  />
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {messages?.map((msg) => {
-            const isUser = msg.message_type === "USER";
-            return (
-              <div
-                key={msg.message_id}
-                className={`flex gap-3.5 ${isUser ? "justify-end" : "justify-start"}`}
+            {isError && (
+              <div className="border-y border-[var(--line)] py-8 text-sm text-[var(--red)]">
+                Messages could not be loaded. Please check your connection and
+                try again.
+              </div>
+            )}
+
+            {!messagesLoading && !isError && messageList.length === 0 && (
+              <div className="ledger-surface border border-[var(--line)] p-8">
+                <h2 className="text-2xl font-bold">Start the conversation</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--ink-2)]">
+                  Ask for decisions, risks, owners, or next steps from this
+                  project&apos;s meeting record.
+                </p>
+              </div>
+            )}
+
+            {!messagesLoading && !isError && messageList.length > 0 && (
+              <div className="message-column">
+                {messageList.map((message) => (
+                  <MessageItem key={message.message_id} message={message} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={submitMessage} className="message-input-shell">
+            <label
+              htmlFor="message"
+              className="text-xs font-bold text-[var(--ink-3)]"
+            >
+              Message
+            </label>
+            <textarea
+              id="message"
+              ref={textAreaRef}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Ask about a decision, action, risk, or meeting record."
+              disabled={sendMessage.isPending}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-3">
+              <p className="text-xs text-[var(--ink-3)]">
+                Answers use available project context.
+              </p>
+              <button
+                type="submit"
+                disabled={sendMessage.isPending || !draft.trim()}
+                className="primary-action"
               >
-                {!isUser && (
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#edf3ff] text-xs font-bold text-[#3564a8] shadow-2xs">
-                    ✦
-                  </span>
-                )}
-
-                <div className={`max-w-[78%] ${isUser ? "text-right" : "text-left"}`}>
-                  <div className="mb-1.5 text-[11px] font-bold text-[#8a9587]">
-                    {isUser ? "You" : "Ops Ninja"}
-                  </div>
-                  <div
-                    className={`inline-block rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${
-                      isUser
-                        ? "bg-[#20251f] text-white shadow-xs rounded-tr-xs"
-                        : "border border-[#dfe5dc] bg-[#f9faf8] text-[#20251f] shadow-xs rounded-tl-xs"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.message}</p>
-                  </div>
-
-                  {msg.proposed_actions && (
-                    <div className="mt-3 rounded-2xl border border-[#dce6da] bg-[#f1f7ef] p-4 text-left text-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#426347]">
-                        <span>✓</span>
-                        <span>Action proposal generated</span>
-                      </div>
-                      <p className="mt-1.5 text-[#596257] leading-relaxed">{msg.proposed_actions}</p>
-                    </div>
-                  )}
-                </div>
-
-                {isUser && (
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#20251f] text-xs font-bold text-white shadow-2xs">
-                    U
-                  </span>
-                )}
-              </div>
-            );
-          })}
-
-          {sendMessage.isPending && (
-            <div className="flex gap-3.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#edf3ff] text-xs font-bold text-[#3564a8] shadow-2xs">
-                ✦
-              </span>
-              <div className="rounded-2xl border border-[#dfe5dc] bg-[#f9faf8] px-5 py-3.5 text-xs text-[#7a8678] shadow-xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#59745b]" />
-                  <span>Thinking and retrieving context…</span>
-                </div>
-              </div>
+                {sendMessage.isPending ? "Sending..." : "Send"}
+              </button>
             </div>
-          )}
+          </form>
+        </section>
 
-          {sendMessage.isError && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
-              Failed to send message. Please try again.
+        <aside className="chat-aside space-y-8">
+          <section className="border-y border-[var(--line)] py-5">
+            <h2 className="text-lg font-bold">Useful prompts</h2>
+            <div className="mt-4 grid gap-2">
+              {[
+                "What decisions were made in the latest meeting?",
+                "Which actions are still unresolved?",
+                "Summarize the risks for the next review.",
+              ].map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => setDraft(prompt)}
+                  className="border border-[var(--line)] bg-white px-3 py-3 text-left text-sm font-semibold hover:border-[var(--line-strong)] hover:text-[var(--orange-dark)]"
+                >
+                  {prompt}
+                </button>
+              ))}
             </div>
-          )}
+          </section>
 
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Input Bar */}
-        <form
-          onSubmit={submit}
-          className="flex items-center gap-3 border-t border-[#dfe5dc] bg-[#fafaf8] p-4 sm:p-5"
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={sendMessage.isPending}
-            placeholder="Ask about meeting records, commitments, or next steps..."
-            className="flex-1 rounded-2xl border border-[#dfe5dc] bg-white px-5 py-3.5 text-sm text-[#20251f] placeholder:text-[#8a9587] transition focus:border-[#59745b] focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || sendMessage.isPending}
-            className="inline-flex items-center justify-center rounded-2xl bg-[#20251f] px-6 py-3.5 text-xs font-bold text-white shadow-md shadow-[#20251f]/15 transition hover:bg-[#343e33] disabled:cursor-not-allowed disabled:opacity-50 active:scale-95"
-          >
-            Send
-          </button>
-        </form>
-      </div>
+          <section className="border-y border-[var(--line)] py-5">
+            <h2 className="text-lg font-bold">Conversation details</h2>
+            <dl className="mt-4 grid gap-3 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-[var(--ink-3)]">Chat ID</dt>
+                <dd className="font-semibold">{chatId.slice(0, 8)}...</dd>
+              </div>
+              {chat?.updated_at && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[var(--ink-3)]">Updated</dt>
+                  <dd className="font-semibold">
+                    {new Date(chat.updated_at).toLocaleDateString()}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        </aside>
+      </main>
     </div>
   );
 }

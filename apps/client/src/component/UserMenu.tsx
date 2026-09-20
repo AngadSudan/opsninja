@@ -26,7 +26,7 @@ export default function UserMenu() {
     return (
       <Link
         href="/signin"
-        className="inline-flex min-h-9 items-center rounded-xl border border-[#dfe5dc] px-3.5 py-1.5 text-xs font-bold text-[#20251f] transition hover:bg-[#fafaf8]"
+        className="inline-flex min-h-9 items-center rounded-lg border border-[#dfe5dc] px-3.5 py-1.5 text-xs font-bold text-[#20251f] transition hover:bg-[#fafaf8]"
       >
         Sign in
       </Link>
@@ -44,7 +44,7 @@ export default function UserMenu() {
         </span>
       </div>
       <button
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#20251f] text-xs font-bold text-white shadow-sm transition hover:bg-[#343e33]"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#20251f] text-xs font-bold text-white shadow-sm transition hover:bg-[#343e33]"
         type="button"
         onClick={logout}
         title="Click to log out"

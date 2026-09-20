@@ -40,7 +40,8 @@ const limiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 10, // Limit each IP to 10 auth requests per window
-  message: "Too many authentication attempts, please try again after 15 minutes",
+  message:
+    "Too many authentication attempts, please try again after 15 minutes",
 });
 
 app.use(morgan("dev") as any);
@@ -57,9 +58,12 @@ app.set("trust proxy", 1);
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = getConfigValue("FRONTEND_URL", "http://localhost:3000")
+      const allowedOrigins = getConfigValue(
+        "FRONTEND_URL",
+        "http://localhost:3000,https://opsninja.angad.space",
+      )
         .split(",")
-        .map(url => url.trim());
+        .map((url) => url.trim());
 
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
@@ -130,7 +134,10 @@ app.use("/api/v1/integrations", integrationRouter);
 app.use("/api/v1/projects/:projectId/chats", chatRouter);
 app.use("/api/v1/projects/:projectId/chats/:chatId/messages", messageRouter);
 app.use("/api/v1/projects/:projectId/meetings", meetingRouter);
-app.use("/api/v1/projects/:projectId/meetings/:meetingId/actions", actionRouter);
+app.use(
+  "/api/v1/projects/:projectId/meetings/:meetingId/actions",
+  actionRouter,
+);
 
 app.use((req, res) => {
   res.status(404).json({
