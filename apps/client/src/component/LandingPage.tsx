@@ -68,7 +68,7 @@ const integrations = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen overflow-hidden bg-[var(--page)] text-[var(--ink)]">
+    <div className="min-h-screen overflow-hidden bg-[var(--page)] font-[family-name:var(--font-inter)] text-[var(--ink)]">
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
@@ -76,7 +76,7 @@ export default function LandingPage() {
             <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
           </Link>
 
-          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-sm font-medium text-[var(--ink-2)] md:flex">
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-sm font-medium tracking-[0.01em] text-[var(--ink-2)] md:flex">
             <a
               href="#how-it-works"
               className="transition-colors hover:text-[var(--ink)]"
@@ -117,28 +117,28 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center px-5 py-24 text-center sm:px-6 lg:py-32">
+        <section className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center px-5 py-20 text-center sm:px-6 lg:py-32">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(0,0,0,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.035)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
 
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide text-[var(--ink-2)] shadow-sm backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--orange)]" />
+            <div className="  inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide text-[var(--ink-2)] shadow-sm backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--orange)] " />
               MEETING INTELLIGENCE FOR OPERATIONS
             </div>
 
-            <h1 className="mt-8 max-w-5xl text-[clamp(3.6rem,9vw,8.8rem)] font-bold leading-[0.86] tracking-[-0.065em]">
+            <h1 className="mt-6 max-w-5xl text-[clamp(3.6rem,7vw,8.8rem)] font-bold leading-[0.86] tracking-[-0.065em]">
               Turn meetings
               <br />
               into <span className="text-[var(--orange)]">context.</span>
             </h1>
 
-            <p className="mx-auto mt-8 max-w-2xl text-base leading-7 text-[var(--ink-2)] sm:text-lg sm:leading-8">
+            <p className="mx-auto mt-8 max-w-3xl text-base leading-7 text-[var(--ink-2)] sm:text-lg sm:leading-8 p-10">
               Ops Ninja converts meeting transcripts into decisions, approved
-              actions, and persistent project knowledge — with source evidence
+              actions, and persistent project knowledge with source evidence
               kept close to every answer.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 ">
               <GetStartedButton variant="large" />
 
               <a
@@ -149,7 +149,7 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <div className="mt-16 flex items-center justify-center gap-6 text-xs text-[var(--ink-3)]">
+            <div className="pt-12 flex items-center justify-center gap-6 text-xs text-[var(--ink-3)]">
               <span>Transcript → Decision</span>
               <span className="h-1 w-1 rounded-full bg-[var(--ink-3)]" />
               <span>Decision → Action</span>
@@ -157,7 +157,7 @@ export default function LandingPage() {
               <span className="hidden sm:block">Action → Approval</span>
             </div>
 
-            <div className="relative mt-16 w-full max-w-4xl">
+            <div className="relative top-10 w-full max-w-4xl">
               <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-[var(--orange)]/5 blur-3xl" />
 
               <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-white text-left shadow-[0_30px_80px_rgba(0,0,0,0.08)]">
@@ -219,7 +219,7 @@ export default function LandingPage() {
           id="how-it-works"
           className="border-t border-[var(--line)] bg-white"
         >
-          <div className="mx-auto flex max-w-6xl flex-col items-center px-5 py-28 text-center sm:px-6">
+          <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 py-28 text-center sm:px-6">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--orange)]">
               How it works
             </span>
