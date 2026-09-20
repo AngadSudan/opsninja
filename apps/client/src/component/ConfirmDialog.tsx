@@ -23,21 +23,21 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#101510]/55 p-4 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
     >
       <section
-        className="w-full max-w-md rounded-3xl border border-[#dfe5dc] bg-white p-7 sm:p-8 shadow-2xl shadow-[#20251f]/15 animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md rounded-lg border border-[#dfe5dc] bg-white p-6 shadow-2xl shadow-[#20251f]/15 animate-in zoom-in-95 duration-200 sm:p-8"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
       >
         <div className="flex items-start gap-4">
           <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs ${
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg shadow-xs ${
               isDestructive
                 ? "bg-[#fff1f1] text-[#b91c1c]"
                 : "bg-[#f0f5ee] text-[#59745b]"
@@ -67,19 +67,19 @@ export default function ConfirmDialog({
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#f0f3ee] pt-5">
+        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#f0f3ee] pt-5 sm:flex-row sm:items-center sm:justify-end">
           <button
-            className="rounded-xl border border-[#dfe5dc] bg-white px-5 py-2.5 text-xs font-bold text-[#596257] transition hover:border-[#20251f]/30 hover:bg-[#fafaf8] hover:text-[#20251f]"
+            className="secondary-action"
             type="button"
             onClick={onCancel}
           >
             {cancelText}
           </button>
           <button
-            className={`inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-xs font-bold text-white shadow-md transition active:scale-[0.98] ${
+            className={`inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-xs font-bold text-white transition active:scale-[0.98] ${
               isDestructive
-                ? "bg-[#b91c1c] shadow-red-700/15 hover:bg-[#991b1b]"
-                : "bg-[#20251f] shadow-[#20251f]/15 hover:bg-[#323c31]"
+                ? "bg-[#b91c1c] hover:bg-[#991b1b]"
+                : "bg-[#20251f] hover:bg-[#323c31]"
             }`}
             type="button"
             onClick={onConfirm}

@@ -4,31 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserMenu from "@/component/UserMenu";
+import BrandLogo from "@/component/BrandLogo";
 
-function BrandLogo({ className = "h-6 w-6" }: { className?: string }) {
+function MenuIcon({ open }: { open: boolean }) {
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full drop-shadow-xs"
-      >
-        <rect width="32" height="32" rx="8" fill="#2d382c" />
-        <path
-          d="M8 22L16 10L24 22H8Z"
-          fill="#59745b"
-          fillOpacity="0.45"
-        />
-        <path
-          d="M10 21L16 12L22 21H10Z"
-          stroke="#b7d0b7"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="18" r="2.2" fill="#16a34a" />
-      </svg>
-    </div>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
+      {open ? (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+      )}
+    </svg>
   );
 }
 
@@ -85,34 +78,45 @@ export default function WorkspaceLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9f7]">
+    <div className="flex min-h-screen bg-[#f3efe7] text-[#1c1b17]">
       {/* Mobile backdrop */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-[#101510]/60 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-white/10 bg-[#1c221b] px-3 py-4 text-[#e9eee7] transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-[#121615] px-4 py-4 text-[#ede8dd] shadow-2xl shadow-black/20 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <Link
           href="/home"
-          className="flex items-center gap-3 px-2 pb-5 text-base font-extrabold text-white tracking-tight"
+          className="flex items-center gap-3 px-1 pb-5 text-base font-extrabold text-white tracking-tight"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <BrandLogo />
+          <BrandLogo className="h-9 w-9" priority />
           <div className="flex flex-col">
             <span className="leading-none">Ops Ninja</span>
-            <span className="mt-1 text-[10px] font-semibold text-[#8ca38a]">
-              Operational Memory
+            <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c98a64]">
+              Operational Intelligence
             </span>
           </div>
         </Link>
+
+        <div className="mb-4 border-y border-white/10 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#857f73]">
+            Product loop
+          </p>
+          <div className="mt-2 grid gap-1 text-[11px] font-semibold text-[#c9c2b5]">
+            <span>Meeting {">"} Context</span>
+            <span>Decisions {">"} Human review</span>
+            <span>Execution {">"} Persistent knowledge</span>
+          </div>
+        </div>
 
         <nav className="grid gap-1" aria-label="Workspace">
           {navLinks.map((item) => (
@@ -120,10 +124,10 @@ export default function WorkspaceLayout({
               key={item.href}
               href={item.href}
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
+              className={`flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                 item.active
-                  ? "bg-[#59745b] text-white shadow-md shadow-[#59745b]/20"
-                  : "text-[#aeb9ac] hover:bg-white/10 hover:text-white"
+                  ? "bg-[#c3562c] text-white"
+                  : "text-[#bdb6aa] hover:bg-white/10 hover:text-white"
               }`}
             >
               <span className="shrink-0" aria-hidden="true">
@@ -134,39 +138,39 @@ export default function WorkspaceLayout({
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-white/10 px-3 pt-4">
-          <div className="flex items-center justify-between">
+        <div className="mt-auto border-t border-white/10 px-2 pt-4">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#9eaa9b]">
-              <span className="h-2 w-2 rounded-full bg-[#16a34a] animate-pulse" />
-              <span>Vault Active</span>
+              <span className="h-2 w-2 rounded-full bg-[#208c55] animate-pulse" />
+              <span>Review gate active</span>
             </div>
-            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-mono font-bold text-[#b7d0b7]">
-              E2EE
+            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold text-[#e0b46f]">
+              APPROVAL
             </span>
           </div>
           <p className="mt-1 text-[10px] text-[#7a8678]">
-            AI Meeting Gatekeeper v2.4
+            Every external action waits for a human.
           </p>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#dfe5dc] bg-white/95 px-5 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#ddd5c9] bg-[#fffdfa]/92 px-4 backdrop-blur-xl sm:px-5 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#dfe5dc] text-[#596257] lg:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#ddd5c9] bg-white text-[#706a60] transition hover:bg-[#f8f6f1] lg:hidden"
               aria-label="Open sidebar"
             >
-              ☰
+              <MenuIcon open={mobileMenuOpen} />
             </button>
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#59745b]">
+              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#9f3f1e]">
                 Ops Ninja Workspace
               </p>
-              <h2 className="text-sm font-bold text-[#20251f]">
+              <h2 className="text-sm font-bold text-[#1c1b17]">
                 {getSectionTitle()}
               </h2>
             </div>
@@ -176,7 +180,7 @@ export default function WorkspaceLayout({
           </div>
         </header>
 
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

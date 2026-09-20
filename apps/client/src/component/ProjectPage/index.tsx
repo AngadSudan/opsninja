@@ -32,19 +32,19 @@ export default function ProjectPage() {
   return (
     <div className="workspace-page space-y-6">
       {/* Header section */}
-      <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-[#dfe5dc] pb-5">
+      <section className="flex flex-col gap-4 border-b border-[#ddd5c9] pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#16a34a]" />
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#59745b]">
-              Shared Context
+            <span className="h-2 w-2 rounded-full bg-[#c3562c]" />
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9f3f1e]">
+              Project workspaces
             </p>
           </div>
           <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[#20251f] sm:text-3xl">
             Projects & Vaults
           </h1>
-          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#596257]">
-            Every project maintains a durable, searchable vault of meeting transcripts, decisions, and human-approved follow-through.
+          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#665f55]">
+            Scan project state, open the latest operational record, and move from meeting evidence to reviewed execution.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export default function ProjectPage() {
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#20251f] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#20251f]/15 transition hover:bg-[#323c31] active:scale-[0.98]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#1c1b17] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#2b2923] active:scale-[0.98]"
           >
             <span className="text-base leading-none">+</span>
             <span>New project</span>
@@ -68,19 +68,21 @@ export default function ProjectPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects by title or description..."
-            className="w-full rounded-2xl border border-[#dfe5dc] bg-[#fafaf8] px-4 py-3 text-sm text-[#20251f] placeholder:text-[#8a9587] transition focus:border-[#59745b] focus:bg-white focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none"
+            className="w-full rounded-lg border border-[#ddd5c9] bg-white px-4 py-3 text-sm text-[#1c1b17] placeholder:text-[#8a8175] transition focus:border-[#c3562c] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#c3562c]/10"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-xs font-semibold text-[#8a9587] hover:text-[#20251f]"
             >
-              ✕
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
             </button>
           )}
         </div>
 
-        <span className="rounded-full bg-[#f1f7ef] px-3.5 py-1.5 text-xs font-bold text-[#426347] border border-[#16a34a]/20">
+        <span className="rounded-md border border-[#208c55]/20 bg-[#e9f6ef] px-3.5 py-1.5 text-xs font-bold text-[#1e7048]">
           {filteredProjects.length} {filteredProjects.length === 1 ? "project" : "projects"} indexed
         </span>
       </div>
@@ -89,26 +91,25 @@ export default function ProjectPage() {
       {isLoading && (
         <div className="overflow-hidden border border-[#dfe5dc] bg-white">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-52 animate-pulse rounded-3xl border border-[#dfe5dc] bg-white p-8"
-            />
+            <div key={i} className="h-24 animate-pulse bg-white p-6" />
           ))}
         </div>
       )}
 
       {/* Error state */}
       {isError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
           Projects could not be loaded. Please check your connection and try again.
         </div>
       )}
 
       {/* Empty states */}
       {!isLoading && !isError && filteredProjects.length === 0 && (
-        <div className="rounded-3xl border border-dashed border-[#cbd9c8] bg-white p-14 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f4f8f2] text-2xl text-[#59745b] shadow-xs">
-            ▦
+        <div className="rounded-lg border border-dashed border-[#cbd9c8] bg-white p-10 text-center sm:p-14">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[#f4f8f2] text-2xl text-[#59745b]">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4.1l2 2H18.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" />
+            </svg>
           </div>
           <h3 className="mt-5 text-lg font-bold text-[#20251f]">
             {searchQuery ? "No matching projects" : "No projects yet"}
@@ -122,7 +123,7 @@ export default function ProjectPage() {
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#20251f] px-6 py-2.5 text-xs font-bold text-white transition hover:bg-[#323c31]"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#20251f] px-6 py-2.5 text-xs font-bold text-white transition hover:bg-[#323c31]"
             >
               + Create your first project
             </button>
@@ -132,19 +133,21 @@ export default function ProjectPage() {
 
       {/* Projects Grid */}
       {!isLoading && !isError && filteredProjects.length > 0 && (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-lg border border-[#ddd5c9] bg-[#fffdfa]">
           {filteredProjects.map((project) => (
             <div
               key={project.project_id}
-              className="group relative flex flex-col justify-between border-b border-[#edf0eb] p-4 transition last:border-b-0 hover:bg-[#f8faf7] sm:flex-row sm:items-center"
+              className="group relative flex flex-col justify-between gap-4 border-b border-[#e8e0d4] p-4 transition last:border-b-0 hover:bg-[#fbfaf7] md:flex-row md:items-center"
             >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eaf2e8] text-sm font-bold text-[#59745b] shadow-xs">
-                    ▰
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f4e8de] text-sm font-bold text-[#9f3f1e]">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4.1l2 2H18.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" />
+                    </svg>
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-[#8a9587]">
+                    <span className="whitespace-nowrap text-xs text-[#8a8175]">
                       {new Date(project.updated_at || project.created_at).toLocaleDateString()}
                     </span>
                     <button
@@ -177,29 +180,34 @@ export default function ProjectPage() {
 
                 <Link
                   href={`/project/${project.project_id}`}
-                  className="mt-3 block sm:mt-0"
+                    className="mt-3 block"
                 >
-                  <h2 className="text-lg font-bold text-[#20251f] transition group-hover:text-[#59745b]">
+                  <h2 className="text-lg font-bold text-[#1c1b17] transition group-hover:text-[#9f3f1e]">
                     {project.name}
                   </h2>
-                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#596257]">
+                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#665f55]">
                     {project.description || "No description provided."}
                   </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="ops-status ops-status-success">Vault indexed</span>
+                    <span className="ops-status ops-status-pending">Approvals tracked</span>
+                    <span className="ops-status ops-status-muted">Jira / Slack ready</span>
+                  </div>
                 </Link>
               </div>
 
               {/* Subpage links footer */}
-              <div className="mt-4 flex items-center justify-between sm:ml-8 sm:mt-0 sm:min-w-64">
+              <div className="flex shrink-0 items-center justify-between gap-4 md:min-w-64">
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/project/${project.project_id}/meeting-summary`}
-                    className="rounded-lg bg-[#fafaf8] border border-[#dfe5dc] px-2.5 py-1 text-[11px] font-semibold text-[#596257] transition hover:bg-[#f0f5ee] hover:text-[#20251f]"
+                    className="rounded-md border border-[#ddd5c9] bg-[#f8f6f1] px-2.5 py-1 text-[11px] font-semibold text-[#665f55] transition hover:bg-white hover:text-[#1c1b17]"
                   >
                     Meetings
                   </Link>
                   <Link
                     href={`/project/${project.project_id}/chat`}
-                    className="rounded-lg bg-[#fafaf8] border border-[#dfe5dc] px-2.5 py-1 text-[11px] font-semibold text-[#59745b] transition hover:bg-[#f0f5ee] hover:text-[#20251f]"
+                    className="rounded-md border border-[#ddd5c9] bg-[#f8f6f1] px-2.5 py-1 text-[11px] font-semibold text-[#9f3f1e] transition hover:bg-white hover:text-[#1c1b17]"
                   >
                     Chat
                   </Link>
@@ -207,9 +215,12 @@ export default function ProjectPage() {
 
                 <Link
                   href={`/project/${project.project_id}`}
-                  className="text-xs font-bold text-[#59745b] transition group-hover:translate-x-0.5"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[#9f3f1e] transition group-hover:translate-x-0.5"
                 >
-                  Open →
+                  Open
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                  </svg>
                 </Link>
               </div>
             </div>
