@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useChat } from "@/hooks/useChat";
 import { useMessages, useSendMessage } from "@/hooks/useMessage";
@@ -98,8 +98,14 @@ export default function ProjectChatDetailsPage({
   const sendMessage = useSendMessage(projectId, chatId);
   const [draft, setDraft] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const threadRef = useRef<HTMLDivElement | null>(null);
 
   const messageList = useMemo(() => messages ?? [], [messages]);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (thread) thread.scrollTop = thread.scrollHeight;
+  }, [messageList.length, sendMessage.isPending]);
 
   const submitMessage = async (event: FormEvent) => {
     event.preventDefault();
@@ -112,9 +118,12 @@ export default function ProjectChatDetailsPage({
   };
 
   return (
-    <div className="workspace-page">
-      <nav className="mb-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--ink-3)]">
-        <Link href={`/project/${projectId}`} className="hover:text-[var(--ink)]">
+    <div className="chat-page-shell">
+      <nav className="chat-breadcrumb flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--ink-3)]">
+        <Link
+          href={`/project/${projectId}`}
+          className="hover:text-[var(--ink)]"
+        >
           Project
         </Link>
         <span>/</span>
@@ -130,15 +139,15 @@ export default function ProjectChatDetailsPage({
         </span>
       </nav>
 
-      <header className="grid gap-6 border-b border-[var(--line)] pb-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <header className="chat-header grid gap-4 border-b border-[var(--line)] px-5 py-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-10">
         <div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             {chat?.chat_name ||
               (chatLoading ? "Loading conversation..." : "Conversation")}
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--ink-2)]">
-            Ask about project records, decisions, unresolved actions, and
-            evidence from connected meeting notes.
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--ink-2)]">
+            Ask about records, decisions, actions, and evidence from meeting
+            notes.
           </p>
         </div>
         <div className="border-y border-[var(--line)] py-4 text-sm lg:self-end">
@@ -155,45 +164,47 @@ export default function ProjectChatDetailsPage({
         </div>
       </header>
 
-      <main className="grid gap-8 py-8 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <section className="min-w-0">
-          {messagesLoading && (
-            <div className="message-column">
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="h-28 animate-pulse border border-[var(--line)] bg-white"
-                />
-              ))}
-            </div>
-          )}
+      <main className="chat-workspace">
+        <section className="chat-column min-w-0">
+          <div ref={threadRef} className="chat-thread">
+            {messagesLoading && (
+              <div className="message-column">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="h-28 animate-pulse border border-[var(--line)] bg-white"
+                  />
+                ))}
+              </div>
+            )}
 
-          {isError && (
-            <div className="border-y border-[var(--line)] py-8 text-sm text-[var(--red)]">
-              Messages could not be loaded. Please check your connection and try
-              again.
-            </div>
-          )}
+            {isError && (
+              <div className="border-y border-[var(--line)] py-8 text-sm text-[var(--red)]">
+                Messages could not be loaded. Please check your connection and
+                try again.
+              </div>
+            )}
 
-          {!messagesLoading && !isError && messageList.length === 0 && (
-            <div className="ledger-surface border border-[var(--line)] p-8">
-              <h2 className="text-2xl font-bold">Start the conversation</h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--ink-2)]">
-                Ask for decisions, risks, owners, or next steps from this
-                project&apos;s meeting record.
-              </p>
-            </div>
-          )}
+            {!messagesLoading && !isError && messageList.length === 0 && (
+              <div className="ledger-surface border border-[var(--line)] p-8">
+                <h2 className="text-2xl font-bold">Start the conversation</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--ink-2)]">
+                  Ask for decisions, risks, owners, or next steps from this
+                  project&apos;s meeting record.
+                </p>
+              </div>
+            )}
 
-          {!messagesLoading && !isError && messageList.length > 0 && (
-            <div className="message-column">
-              {messageList.map((message) => (
-                <MessageItem key={message.message_id} message={message} />
-              ))}
-            </div>
-          )}
+            {!messagesLoading && !isError && messageList.length > 0 && (
+              <div className="message-column">
+                {messageList.map((message) => (
+                  <MessageItem key={message.message_id} message={message} />
+                ))}
+              </div>
+            )}
+          </div>
 
-          <form onSubmit={submitMessage} className="mt-8 message-input-shell">
+          <form onSubmit={submitMessage} className="message-input-shell">
             <label
               htmlFor="message"
               className="text-xs font-bold text-[var(--ink-3)]"
@@ -223,7 +234,7 @@ export default function ProjectChatDetailsPage({
           </form>
         </section>
 
-        <aside className="space-y-8">
+        <aside className="chat-aside space-y-8">
           <section className="border-y border-[var(--line)] py-5">
             <h2 className="text-lg font-bold">Useful prompts</h2>
             <div className="mt-4 grid gap-2">
