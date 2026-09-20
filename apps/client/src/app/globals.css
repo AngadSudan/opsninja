@@ -1,34 +1,39 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-page-bg: #fafaf8;
+  --color-page-bg: #f5f2ec;
   --color-surface: #ffffff;
-  --color-surface-muted: #f5f5f3;
-  --color-border: rgba(26, 29, 26, 0.1);
-  --color-border-strong: rgba(26, 29, 26, 0.2);
-  --color-text-primary: #1a1d1a;
-  --color-text-secondary: rgba(26, 29, 26, 0.65);
-  --color-text-muted: rgba(26, 29, 26, 0.4);
-  --color-brand: #2563eb;
-  --color-brand-hover: #1d4ed8;
-  --color-brand-light: rgba(37, 99, 235, 0.08);
-  --color-accent-green: #16a34a;
-  --color-accent-amber: #d97706;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --color-surface-muted: #eee9df;
+  --color-border: rgba(28, 27, 23, 0.12);
+  --color-border-strong: rgba(28, 27, 23, 0.24);
+  --color-text-primary: #1c1b17;
+  --color-text-secondary: rgba(28, 27, 23, 0.68);
+  --color-text-muted: rgba(28, 27, 23, 0.46);
+  --color-brand: #c3562c;
+  --color-brand-hover: #9f3f1e;
+  --color-brand-light: rgba(195, 86, 44, 0.1);
+  --color-accent-green: #208c55;
+  --color-accent-amber: #c97a17;
+  --radius-sm: 4px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
   --radius-pill: 9999px;
 }
 
 /* ── CSS Variables for runtime theming ─────────────── */
 :root {
   --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --workspace-bg: #f8f9f7;
-  --workspace-panel: #ffffff;
-  --workspace-line: #e3e7e1;
-  --workspace-ink: #20251f;
-  --workspace-muted: #6d776b;
-  --workspace-green: #356a45;
+  --workspace-bg: #f3efe7;
+  --workspace-panel: #fffdfa;
+  --workspace-line: #ddd5c9;
+  --workspace-ink: #1c1b17;
+  --workspace-muted: #706a60;
+  --workspace-green: #208c55;
+  --workspace-warm: #c3562c;
+  --workspace-blue: #315f8d;
+  --workspace-dark: #121615;
+  --workspace-dark-2: #1a201e;
+  --workspace-amber: #c97a17;
 }
 
 /* ── Base Resets ───────────────────────────────────── */
@@ -42,18 +47,46 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  scroll-behavior: smooth;
 }
 
 body {
   @apply bg-page-bg text-text-primary;
+  min-height: 100vh;
   font-family: var(--font-inter);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   line-height: 1.5;
+  background:
+    linear-gradient(180deg, #f5f2ec 0%, #f8f6f1 38%, #f1ece3 100%);
 }
 
-/* Authenticated workspace primitives.  These deliberately favour seams and
-   compact lists over the floating-card dashboard treatment. */
-.workspace-page { max-width: 1440px; margin: 0 auto; padding: 24px 32px 40px; }
-.workspace-page > * + * { margin-top: 20px; }
+::selection {
+  background: rgba(195, 86, 44, 0.24);
+  color: #1c1b17;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ebe4d8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b6aa9b;
+  border: 2px solid #ebe4d8;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8f8375;
+}
+
+/* Authenticated workspace primitives. Compact, readable, and built for repeated use. */
+.workspace-page { width: 100%; max-width: 1480px; margin: 0 auto; padding: 28px 32px 44px; }
 .workspace-page .rounded-3xl { border-radius: 8px; }
 .workspace-page .rounded-2xl { border-radius: 6px; }
 .workspace-page .rounded-xl { border-radius: 5px; }
@@ -66,6 +99,10 @@ body {
   .workspace-page { padding: 20px; }
 }
 
+@media (max-width: 640px) {
+  .workspace-page { padding: 16px; }
+}
+
 button,
 input,
 textarea,
@@ -75,6 +112,10 @@ select {
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 a {
@@ -93,8 +134,65 @@ ol {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+select:focus-visible {
   @apply outline-2 outline-brand outline-offset-2;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--workspace-green);
+}
+
+textarea {
+  resize: vertical;
+}
+
+@layer components {
+  .surface-panel {
+    @apply border border-[#dfe5dc] bg-white;
+  }
+
+  .soft-panel {
+    @apply border border-[#e5ebe3] bg-[#fbfcfa];
+  }
+
+  .primary-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#1c1b17] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#2b2923] active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .secondary-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#ddd5c9] bg-white px-5 py-2.5 text-xs font-bold text-[#706a60] transition hover:border-[#1c1b17]/30 hover:bg-[#f8f6f1] hover:text-[#1c1b17] disabled:opacity-50;
+  }
+
+  .icon-tile {
+    @apply flex shrink-0 items-center justify-center rounded-lg border border-[#ddd5c9] bg-[#f8f2eb] text-[#c3562c];
+  }
+
+  .page-kicker {
+    @apply text-[11px] font-bold uppercase tracking-[0.16em] text-[#9f3f1e];
+  }
+
+  .ops-panel {
+    @apply border border-[#ddd5c9] bg-[#fffdfa];
+  }
+
+  .ops-status {
+    @apply inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-bold;
+  }
+
+  .ops-status-pending {
+    @apply border-[#e0b46f]/50 bg-[#fff5e5] text-[#9a5c10];
+  }
+
+  .ops-status-success {
+    @apply border-[#208c55]/25 bg-[#e9f6ef] text-[#1e7048];
+  }
+
+  .ops-status-muted {
+    @apply border-[#ddd5c9] bg-[#f8f6f1] text-[#706a60];
+  }
 }
 
 /* ── Utility Classes ──────────────────────────────────── */

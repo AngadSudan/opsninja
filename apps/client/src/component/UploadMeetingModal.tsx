@@ -40,20 +40,20 @@ export default function UploadMeetingModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#101510]/55 p-4 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <form
-        className="w-full max-w-2xl rounded-3xl border border-[#dfe5dc] bg-white p-7 sm:p-9 shadow-2xl shadow-[#20251f]/15 animate-in zoom-in-95 duration-200"
+        className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-lg border border-[#dfe5dc] bg-white p-6 shadow-2xl shadow-[#20251f]/15 animate-in zoom-in-95 duration-200 sm:p-8"
         onSubmit={submit}
       >
         {/* Modal Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f0f5ee] text-[#59745b] shadow-xs">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0f5ee] text-[#59745b] shadow-xs">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
@@ -73,7 +73,9 @@ export default function UploadMeetingModal({
             className="rounded-lg p-1.5 text-xs text-[#8a9587] transition hover:bg-[#f0f3ee] hover:text-[#20251f]"
             aria-label="Close modal"
           >
-            ✕
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
@@ -86,7 +88,7 @@ export default function UploadMeetingModal({
             Meeting Platform
           </label>
           <select
-            className="mt-2 w-full rounded-2xl border border-[#dfe5dc] bg-[#fafaf8] px-4 py-3 text-sm text-[#20251f] transition focus:border-[#59745b] focus:bg-white focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none cursor-pointer"
+            className="mt-2 w-full cursor-pointer rounded-lg border border-[#dfe5dc] bg-[#fafaf8] px-4 py-3 text-sm text-[#20251f] transition focus:border-[#59745b] focus:bg-white focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none"
             id="meeting-platform"
             value={platform}
             onChange={(event) => setPlatform(event.target.value)}
@@ -113,7 +115,7 @@ export default function UploadMeetingModal({
             </span>
           </div>
           <textarea
-            className="mt-2 min-h-48 w-full rounded-2xl border border-[#dfe5dc] bg-[#fafaf8] p-4 text-xs font-mono leading-relaxed text-[#20251f] placeholder:text-[#8a9587] transition focus:border-[#59745b] focus:bg-white focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none"
+            className="mt-2 min-h-48 w-full rounded-lg border border-[#dfe5dc] bg-[#fafaf8] p-4 text-xs font-mono leading-relaxed text-[#20251f] placeholder:text-[#8a9587] transition focus:border-[#59745b] focus:bg-white focus:ring-4 focus:ring-[#59745b]/10 focus:outline-none"
             id="meeting-transcript"
             value={transcript}
             onChange={(event) => setTranscript(event.target.value)}
@@ -132,16 +134,16 @@ export default function UploadMeetingModal({
         )}
 
         {/* Modal Actions */}
-        <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#f0f3ee] pt-5">
+        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#f0f3ee] pt-5 sm:flex-row sm:items-center sm:justify-end">
           <button
-            className="rounded-xl border border-[#dfe5dc] bg-white px-5 py-2.5 text-xs font-bold text-[#596257] transition hover:border-[#20251f]/30 hover:bg-[#fafaf8] hover:text-[#20251f]"
+            className="secondary-action"
             type="button"
             onClick={onClose}
           >
             Cancel
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-[#20251f] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-[#20251f]/15 transition hover:bg-[#323c31] disabled:opacity-50 active:scale-[0.98]"
+            className="primary-action"
             type="submit"
             disabled={upload.isPending}
           >

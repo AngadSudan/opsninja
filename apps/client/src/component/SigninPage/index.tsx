@@ -49,7 +49,7 @@ export default function SigninPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#fafaf8] px-5 py-10 text-[#20251f]">
-      <section className="w-full max-w-md rounded-3xl border border-[#dfe5dc] bg-white p-8 text-center shadow-2xl shadow-[#20251f]/5">
+      <section className="w-full max-w-md rounded-lg border border-[#dfe5dc] bg-white p-8 text-center shadow-2xl shadow-[#20251f]/5">
         <Link href="/" className="inline-flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
           <BrandLogo /> Ops Ninja
         </Link>
@@ -69,7 +69,7 @@ export default function SigninPage() {
           <button
             type="button"
             onClick={() => redirectToCognito()}
-            className="w-full rounded-xl bg-[#20251f] py-2.5 text-xs font-bold text-white transition hover:bg-[#343e33]"
+            className="primary-action w-full"
           >
             Click here if not redirected automatically
           </button>
@@ -77,7 +77,7 @@ export default function SigninPage() {
             href="/"
             className="block text-xs font-semibold text-[#59745b] hover:underline"
           >
-            ← Return to overview
+            Return to overview
           </Link>
         </div>
       </section>

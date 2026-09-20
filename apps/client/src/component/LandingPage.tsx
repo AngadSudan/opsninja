@@ -3,40 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import GetStartedButton from "@/component/GetStartedButton";
-
-function BrandLogo({ className = "h-7 w-7" }: { className?: string }) {
-  return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-full w-full drop-shadow-sm"
-      >
-        <rect width="32" height="32" rx="9" fill="#20251f" />
-        <path
-          d="M8 22L16 10L24 22H8Z"
-          fill="#59745b"
-          fillOpacity="0.35"
-        />
-        <path
-          d="M10 21L16 12L22 21H10Z"
-          stroke="#b7d0b7"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="18" r="2.2" fill="#16a34a" />
-        <path
-          d="M7 16H25"
-          stroke="#ffffff"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          strokeOpacity="0.4"
-        />
-      </svg>
-    </div>
-  );
-}
+import BrandLogo from "@/component/BrandLogo";
 
 // Scenarios for the interactive live hero preview
 interface DemoScenario {
@@ -190,56 +157,48 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="landing-shell relative min-h-screen bg-[#fafaf8] text-[#20251f] selection:bg-[#59745b]/20 selection:text-[#20251f]">
-      {/* Ambient background glow decoration */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 flex justify-center overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="h-[640px] w-[1200px] bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,rgba(89,116,91,0.12),rgba(250,250,248,0))]" />
-      </div>
-
+    <div className="landing-shell relative min-h-screen bg-[#f5f2ec] text-[#1c1b17] selection:bg-[#c3562c]/20 selection:text-[#1c1b17]">
       {/* ── Fixed / Sticky Glass Navbar ───────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-[#20251f]/8 bg-[#fafaf8]/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[#1c1b17]/10 bg-[#fffdfa]/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-10">
           <Link
             href="/"
             className="group flex items-center gap-3 transition"
           >
-            <BrandLogo />
+            <BrandLogo className="h-9 w-9" priority />
             <div className="flex flex-col">
-              <span className="flex items-center gap-1.5 text-base font-extrabold tracking-tight text-[#20251f]">
+              <span className="flex items-center gap-1.5 text-base font-extrabold tracking-tight text-[#1c1b17]">
                 Ops Ninja
-                <span className="rounded-md bg-[#59745b]/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3d533f]">
-                  v2.4
+                <span className="rounded-md bg-[#c3562c]/12 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9f3f1e]">
+                  Gatekeeper
                 </span>
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-[#596257] md:flex">
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-[#706a60] md:flex">
             <a
               href="#how-it-works"
-              className="transition hover:text-[#20251f]"
+              className="transition hover:text-[#1c1b17]"
             >
               How It Works
             </a>
             <a
               href="#approval-gate"
-              className="transition hover:text-[#20251f]"
+              className="transition hover:text-[#1c1b17]"
             >
               The Approval Gate
             </a>
             <a
               href="#integrations"
-              className="transition hover:text-[#20251f]"
+              className="transition hover:text-[#1c1b17]"
             >
               Integrations
             </a>
             <a
               href="#security"
-              className="transition hover:text-[#20251f]"
+              className="transition hover:text-[#1c1b17]"
             >
               Vault Security
             </a>
@@ -249,7 +208,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/signin"
-              className="hidden px-3.5 py-2 text-xs font-semibold text-[#596257] transition hover:text-[#20251f] sm:inline-block"
+              className="hidden px-3.5 py-2 text-xs font-semibold text-[#706a60] transition hover:text-[#1c1b17] sm:inline-block"
             >
               Sign in
             </Link>
@@ -260,65 +219,71 @@ export default function LandingPage() {
 
       {/* ── Hero Section ───────────────────────────────────────── */}
       <section className="relative mx-auto max-w-7xl px-6 pb-12 pt-10 lg:px-10 lg:pb-16 lg:pt-14">
-        {/* Hero Copy & CTA */}
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#59745b]/25 bg-white/80 px-3.5 py-1.5 text-xs font-semibold text-[#3b4d3d] shadow-sm backdrop-blur">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16a34a] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16a34a]" />
-            </span>
-            <span>Autonomous Intelligence with Cryptographic Human Approval</span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="mt-5 text-4xl font-extrabold tracking-[-0.04em] text-[#20251f] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
-            Operational memory for{" "}
-            <span className="bg-gradient-to-r from-[#20251f] via-[#59745b] to-[#2d402f] bg-clip-text text-transparent">
-              teams that ship.
-            </span>
+        <div className="grid items-center gap-10 lg:grid-cols-[0.88fr_1.12fr]">
+          <div>
+          <h1 className="max-w-3xl text-4xl font-extrabold tracking-[-0.03em] text-[#1c1b17] sm:text-5xl lg:text-[3.65rem] lg:leading-[1.02]">
+            Ops Ninja turns meetings into operational context and executable work.
           </h1>
-
-          {/* Subtitle */}
-          <p className="mt-5 text-base leading-relaxed text-[#596257] sm:text-lg">
-            Capture the decisions behind the work, keep them connected to project
-            context, and review every Jira or Slack action before it leaves Ops Ninja.
+          <p className="mt-5 max-w-2xl text-base leading-8 text-[#5f584f] sm:text-lg">
+            Capture decisions, stage follow-up actions, require human approval,
+            execute into Jira and Slack, then keep the evidence in durable project memory.
           </p>
-
-          {/* CTA Group */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <GetStartedButton variant="large" />
             <a
               href="#live-preview"
-              className="inline-flex items-center gap-2 rounded-2xl border border-[#20251f]/15 bg-white px-6 py-3.5 text-sm font-bold text-[#20251f] shadow-sm transition hover:border-[#20251f]/35 hover:bg-[#fafaf8]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#1c1b17]/15 bg-white px-6 py-3.5 text-sm font-bold text-[#1c1b17] transition hover:border-[#1c1b17]/35 hover:bg-[#f8f6f1]"
             >
-              <span>Explore live simulator</span>
+              <span>Inspect the workflow</span>
               <span aria-hidden="true">↓</span>
             </a>
           </div>
+          <div className="mt-8 grid max-w-xl gap-2 text-xs font-semibold text-[#6f675d] sm:grid-cols-3">
+            {["Human approval", "Provenance-first chat", "Jira + Slack execution"].map((item) => (
+              <span key={item} className="border-l border-[#c3562c]/35 pl-3">
+                {item}
+              </span>
+            ))}
+          </div>
+          </div>
 
-          {/* Micro trust signals */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-xs text-[#7a8278]">
-            <span className="flex items-center gap-1.5">
-              <svg className="h-3.5 w-3.5 text-[#16a34a]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Zero blind automations
-            </span>
-            <span className="h-1 w-1 rounded-full bg-[#c6ccc2]" />
-            <span className="flex items-center gap-1.5">
-              <svg className="h-3.5 w-3.5 text-[#16a34a]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Obsidian & Jira Native
-            </span>
-            <span className="h-1 w-1 rounded-full bg-[#c6ccc2]" />
-            <span className="flex items-center gap-1.5">
-              <svg className="h-3.5 w-3.5 text-[#16a34a]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Local-first privacy
-            </span>
+          <div className="rounded-lg border border-[#27221c] bg-[#121615] p-4 text-[#ede8dd] shadow-xl shadow-[#1c1b17]/12">
+            <div className="grid gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#9d9588] sm:grid-cols-6">
+              {["Meeting", "Context", "Decision", "Action", "Review", "Execute"].map((step, index) => (
+                <div key={step} className="rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2">
+                  <span className={index === 4 ? "text-[#e0b46f]" : index === 5 ? "text-[#65c08c]" : "text-[#d8d0c3]"}>
+                    {step}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+              <div className="rounded-lg border border-white/10 bg-[#1a201e] p-4">
+                <div className="flex items-center justify-between">
+                  <strong className="text-sm">Sprint 48 planning</strong>
+                  <span className="ops-status ops-status-pending border-[#e0b46f]/30 bg-[#e0b46f]/10 text-[#f0c681]">Needs review</span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-md bg-white/[0.04] p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#65c08c]">Decision</p>
+                    <p className="mt-1 text-sm text-[#f5efe5]">Lock DynamoDB partition schema before staging auth refactor.</p>
+                  </div>
+                  <div className="rounded-md bg-white/[0.04] p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#e0b46f]">External action</p>
+                    <p className="mt-1 text-sm text-[#f5efe5]">Create Jira issue ORCA-104 with security signoff blocker.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg border border-[#c3562c]/35 bg-[#201915] p-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#d99167]">Provenance</p>
+                <blockquote className="mt-3 border-l border-[#c3562c] pl-3 text-sm leading-6 text-[#e8dfd3]">
+                  “Gate this behind security signoff and track it in Jira under PROJ-Orca.”
+                </blockquote>
+                <button className="mt-4 w-full rounded-lg bg-[#c3562c] px-4 py-3 text-xs font-bold text-white transition hover:bg-[#9f3f1e]">
+                  Approve and dispatch
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -385,7 +350,21 @@ export default function LandingPage() {
                     onClick={() => setIsPlayingAudio(!isPlayingAudio)}
                     className="flex items-center gap-1 rounded-md border border-[#dfe5dc] bg-white px-2 py-1 text-[10px] font-semibold text-[#596257] hover:bg-[#f4f7f2]"
                   >
-                    <span>{isPlayingAudio ? "⏸ Pause" : "▶ Play"}</span>
+                    {isPlayingAudio ? (
+                      <>
+                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
+                        </svg>
+                        <span>Pause</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m8 5 11 7-11 7V5Z" />
+                        </svg>
+                        <span>Play</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -446,7 +425,7 @@ export default function LandingPage() {
                 {/* Decisions block */}
                 <div className="mt-3">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#3d533f]">
-                    ✓ Locked Decisions
+                    Locked Decisions
                   </p>
                   <div className="mt-2 space-y-2">
                     {activeScenario.extractedDecisions.map((decision, i) => (
@@ -454,7 +433,9 @@ export default function LandingPage() {
                         key={i}
                         className="flex items-start gap-2 rounded-lg border border-[#e0ebd9] bg-[#f5f9f3] p-2.5 text-xs text-[#20251f]"
                       >
-                        <span className="mt-0.5 text-[#16a34a] font-bold">✓</span>
+                        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#16a34a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
+                        </svg>
                         <span className="leading-snug">{decision}</span>
                       </div>
                     ))}
@@ -464,7 +445,7 @@ export default function LandingPage() {
                 {/* Staged actions block */}
                 <div className="mt-4">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#b15d3d]">
-                    ⚡ Staged Proposals
+                    Staged Proposals
                   </p>
                   <div className="mt-2 space-y-2">
                     {activeScenario.extractedActions.map((action, i) => (
@@ -472,7 +453,9 @@ export default function LandingPage() {
                         key={i}
                         className="flex items-start gap-2 rounded-lg border border-[#faeade] bg-[#fff8f5] p-2.5 text-xs text-[#20251f]"
                       >
-                        <span className="mt-0.5 text-[#c2491d] font-bold">→</span>
+                        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#c2491d]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                        </svg>
                         <span className="leading-snug">{action}</span>
                       </div>
                     ))}
@@ -535,7 +518,9 @@ export default function LandingPage() {
                     <div className="flex items-center justify-between rounded-xl bg-[#16a34a] p-3 text-white shadow-lg animate-in fade-in zoom-in-95 duration-200">
                       <div className="flex items-center gap-2 text-xs font-bold">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                          ✓
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
+                          </svg>
                         </span>
                         <span>Dispatched to {activeScenario.targetTool}!</span>
                       </div>
@@ -681,7 +666,10 @@ export default function LandingPage() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c2491d]/30 bg-[#fff5f2] px-3 py-1 text-xs font-bold text-[#c2491d]">
-              <span>🛡️ Zero Hallucinated Writes</span>
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 5 6v5c0 4.5 2.9 8.3 7 10 4.1-1.7 7-5.5 7-10V6l-7-3Z" />
+              </svg>
+              <span>Zero Hallucinated Writes</span>
             </div>
             <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#20251f] sm:text-4xl lg:text-5xl">
               AI can prepare the work.
@@ -721,9 +709,12 @@ export default function LandingPage() {
           {/* Gate Comparison Visual */}
           <div className="space-y-4">
             {/* The Old Way */}
-            <div className="rounded-2xl border border-[#f5c6cb] bg-[#fff5f5] p-6 shadow-sm">
+            <div className="rounded-lg border border-[#f5c6cb] bg-[#fff5f5] p-6 shadow-sm">
               <div className="flex items-center gap-2 text-xs font-bold text-[#b02a37]">
-                <span>✕ The Blind Automation Trap</span>
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+                <span>The Blind Automation Trap</span>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-[#721c24]">
                 Traditional bots automatically post unverified action items to
@@ -733,10 +724,13 @@ export default function LandingPage() {
             </div>
 
             {/* The Ops Ninja Way */}
-            <div className="rounded-2xl border-2 border-[#16a34a]/30 bg-white p-6 shadow-lg">
+            <div className="rounded-lg border-2 border-[#16a34a]/30 bg-white p-6 shadow-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a]">
-                  <span>✓ The Ops Ninja Gate Protocol</span>
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
+                  </svg>
+                  <span>The Ops Ninja Gate Protocol</span>
                 </div>
                 <span className="rounded bg-[#f0fdf4] px-2 py-0.5 text-[10px] font-bold text-[#15803d]">
                   Protected
@@ -833,16 +827,6 @@ export default function LandingPage() {
               Instant setup · Works with your existing Jira & Obsidian setup
             </p>
           </div>
-
-          {/* Background decorative glow */}
-          <div
-            className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-[#59745b]/30 blur-3xl"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-[#c2491d]/20 blur-3xl"
-            aria-hidden="true"
-          />
         </div>
       </section>
 
