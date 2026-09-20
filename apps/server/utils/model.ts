@@ -1,9 +1,7 @@
-import { OpenAIModel } from "@strands-agents/sdk/models/openai";
-import { requireConfigValue } from "./config";
+import { GoogleModel } from '@strands-agents/sdk/models/google'
 
 export const createMeetingModel = () =>
-  new OpenAIModel({
-    apiKey: requireConfigValue("OPENROUTER_API_KEY"),
-    baseURL: "https://openrouter.ai/api/v1",
-    modelId: "openai/gpt-4o-mini",
+  new GoogleModel({
+    apiKey: process.env.GEMINI_KEY,
+    modelId: 'gemini-3.5-flash'
   });

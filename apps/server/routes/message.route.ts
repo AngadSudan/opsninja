@@ -10,10 +10,13 @@ messageRouter.use(authenticate);
 messageRouter.post("/", async (req: Request, res: Response) => {
   try {
     const chatId = req.params.chatId;
+    const projectId = req.params.projectId;
     if (!chatId) throw new Error("chatId is required");
+    if (!projectId) throw new Error("projectId is required");
     if (!req.body.message?.trim()) throw new Error("message is required");
 
     const data = await messageController.sendMessage(
+      projectId,
       chatId,
       req.body.message,
       req.body.jira_credentials,
@@ -22,7 +25,7 @@ messageRouter.post("/", async (req: Request, res: Response) => {
     return res.json(apiResponse(200, "message sent", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 
@@ -35,7 +38,7 @@ messageRouter.get("/", async (req: Request, res: Response) => {
     return res.json(apiResponse(200, "messages fetched", data));
   } catch (error: any) {
     console.log(error);
-    return res.json(apiResponse(500, error.message, null));
+    return res.status(500).json(apiResponse(500, error.message, null));
   }
 });
 

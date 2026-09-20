@@ -17,7 +17,12 @@ class DynamoDB {
       region,
       credentials: { accessKeyId: accessKey, secretAccessKey: accessSecret },
     });
-    this.client = DynamoDBDocumentClient.from(client);
+    // MOM action items legitimately omit optional fields such as assignee and
+    // due date. DynamoDB cannot marshal `undefined` values nested in arrays,
+    // so remove them consistently for every repository write.
+    this.client = DynamoDBDocumentClient.from(client, {
+      marshallOptions: { removeUndefinedValues: true },
+    });
   }
 
   public static getInstance(

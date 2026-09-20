@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { FormEvent, useState } from "react";
 import { useUploadTranscript } from "@/hooks/useMeeting";
 
@@ -15,17 +16,26 @@ export default function UploadMeetingModal({
   const upload = useUploadTranscript(projectId);
   const [platform, setPlatform] = useState("Google Meet");
   const [transcript, setTranscript] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await upload.mutateAsync({
-      meeting_platform: platform,
-      original_transcript: transcript.trim(),
-    });
-    setTranscript("");
-    onClose();
+    setErrorMessage(null);
+    try {
+      await upload.mutateAsync({
+        meeting_platform: platform,
+        original_transcript: transcript.trim(),
+      });
+      setTranscript("");
+      onClose();
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      setErrorMessage(message || "Unable to process transcript. Please try again.");
+    }
   };
 
   return (
@@ -115,9 +125,9 @@ export default function UploadMeetingModal({
           />
         </div>
 
-        {upload.isError && (
+        {(upload.isError || errorMessage) && (
           <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-            Unable to process transcript. Please try again.
+            {errorMessage || "Unable to process transcript. Please try again."}
           </div>
         )}
 

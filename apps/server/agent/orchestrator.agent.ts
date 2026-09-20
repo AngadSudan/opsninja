@@ -1,4 +1,4 @@
-import { Agent } from "@strands-agents/sdk";
+import { Agent, Message, TextBlock } from "@strands-agents/sdk";
 import jiraAgent, { type JiraCredentials } from "./jira.agent";
 import slackAgent, { type SlackCredentials } from "./slack.agent";
 import { createMeetingModel } from "../utils/model";
@@ -112,10 +112,13 @@ export class OrchestratorAgent {
     if (context.history?.length) {
       console.log(`[OrchestratorAgent] Adding ${context.history.length} history turns`);
       for (const turn of context.history) {
-        agent.messages.push({
-          role: turn.role,
-          content: [{ type: "textBlock", text: turn.content }],
-        });
+        if (!turn.content?.trim()) continue;
+        agent.messages.push(
+          new Message({
+            role: turn.role,
+            content: [new TextBlock(turn.content)],
+          }),
+        );
       }
     }
 

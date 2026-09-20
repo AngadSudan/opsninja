@@ -16,13 +16,7 @@ export const meetingActionSchema = z.object({
     .nullable()
     .optional()
     .describe("Jira project key or Slack channel when known."),
-}).transform((data) => ({
-  ...data,
-  description: data.description || undefined,
-  assignee: data.assignee || undefined,
-  dueDate: data.dueDate || undefined,
-  target: data.target || undefined,
-}));
+});
 
 export type MeetingAction = z.infer<typeof meetingActionSchema>;
 

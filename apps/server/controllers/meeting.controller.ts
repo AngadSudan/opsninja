@@ -31,21 +31,8 @@ class MeetingController {
     if (!dto.original_transcript?.trim())
       throw new Error("original_transcript is required");
 
-    const now = new Date().toISOString();
-    const meeting: Meeting = {
-      meeting_id: crypto.randomUUID(),
-      project_id: projectId,
-      uploaded_by: dto.uploaded_by,
-      meeting_platform: dto.meeting_platform,
-      original_transcript: dto.original_transcript,
-      created_at: now,
-      updated_at: now,
-    };
-
-    await meetingRepository.createMeeting(meeting);
-
     console.log(
-      `[MeetingController] Processing transcript for meeting ${meeting.meeting_id} (${dto.original_transcript.length} chars)`,
+      `[MeetingController] Processing transcript (${dto.original_transcript.length} chars)`,
     );
 
     let workflowResult: Awaited<
@@ -60,11 +47,25 @@ class MeetingController {
       );
     } catch (error) {
       console.error(
-        `[MeetingController] Failed to ingest transcript for meeting ${meeting.meeting_id}:`,
+        `[MeetingController] Failed to ingest transcript:`,
         error,
       );
       throw error;
     }
+
+    // Do not leave an upload in the meeting list until it has a MOM. This keeps
+    // the UI's "MOM ready" state truthful when the model provider is unavailable.
+    const now = new Date().toISOString();
+    const meeting: Meeting = {
+      meeting_id: crypto.randomUUID(),
+      project_id: projectId,
+      uploaded_by: dto.uploaded_by,
+      meeting_platform: dto.meeting_platform,
+      original_transcript: dto.original_transcript,
+      created_at: now,
+      updated_at: now,
+    };
+    await meetingRepository.createMeeting(meeting);
 
     const recordNow = new Date().toISOString();
     const record: MeetingRecord = {
@@ -77,40 +78,58 @@ class MeetingController {
       updated_at: recordNow,
     };
 
-    await meetingRecordRepository.createRecord(record);
-
-    console.log(`[MeetingController] Saving transcript to Neptune graph...`);
     try {
-      await graphService.indexMeeting({
-        projectId,
-        meetingId: meeting.meeting_id,
-        recordId: record.record_id,
-        minutes: workflowResult.minutes,
-        summaryEmbedding: [],
-      });
-      console.log(`[MeetingController] Transcript indexed in Neptune`);
+      await meetingRecordRepository.createRecord(record);
     } catch (error) {
-      console.warn(
-        `[MeetingController] Failed to save to Neptune, continuing:`,
-        error,
-      );
+      // Best-effort compensation avoids a meeting that cannot be opened as a MOM.
+      await meetingRepository.deleteMeeting(meeting.meeting_id).catch(() => undefined);
+      throw error;
     }
 
-    for (const proposal of workflowResult.proposals) {
+    for (const extractedAction of workflowResult.actions) {
       const actionNow = new Date().toISOString();
       const action: MeetingActionItem = {
         action_id: crypto.randomUUID(),
         meeting_id: meeting.meeting_id,
         action_by: dto.uploaded_by,
-        action_status: "pending",
+        action_status:
+          extractedAction.externalAction === "none"
+            ? "un_initialized"
+            : "pending",
         action_type:
-          proposal.type === "jira" ? "create_jira_issue" : "send_slack_message",
-        integration_platform: proposal.type,
+          extractedAction.externalAction === "jira"
+            ? "create_jira_issue"
+            : extractedAction.externalAction === "slack"
+              ? "send_slack_message"
+              : "create_calendar_event",
+        integration_platform:
+          extractedAction.externalAction === "jira"
+            ? "jira"
+            : extractedAction.externalAction === "slack"
+              ? "slack"
+              : "calendar",
+        title: extractedAction.title,
+        description: extractedAction.description,
+        assignee: extractedAction.assignee,
+        due_date: extractedAction.dueDate,
+        priority: extractedAction.priority,
+        target: extractedAction.target,
         created_at: actionNow,
         updated_at: actionNow,
       };
       await actionRepository.createAction(action);
     }
+
+    // Graph retrieval enriches chat, but it must never hold the user-facing
+    // upload open. It continues after DynamoDB has safely stored the MOM.
+    void this.indexMeetingInBackground({
+      projectId,
+      meetingId: meeting.meeting_id,
+      recordId: record.record_id,
+      shortname: workflowResult.shortname,
+      description: workflowResult.description,
+      minutes: workflowResult.minutes,
+    });
 
     return {
       ...meeting,
@@ -119,6 +138,44 @@ class MeetingController {
       actions: workflowResult.actions,
       proposals: workflowResult.proposals,
     };
+  }
+
+  private async indexMeetingInBackground(input: {
+    projectId: string;
+    meetingId: string;
+    recordId: string;
+    shortname: string;
+    description: string;
+    minutes: Awaited<ReturnType<typeof meetingWorkflowService.ingestTranscript>>["minutes"];
+  }) {
+    console.log(`[MeetingController] Starting Neptune graph indexing for meetingId=${input.meetingId} recordId=${input.recordId}`);
+    try {
+      console.log(`[MeetingController] Generating embedding for: "${input.shortname}"`);
+      const summaryEmbedding = await Promise.race([
+        embeddingService.embed([input.shortname, input.description].join("\n\n")),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Embedding request timed out after 8s")), 8_000),
+        ),
+      ]);
+
+      if (!summaryEmbedding.length) {
+        console.warn(`[MeetingController] Embedding returned empty array — skipping graph indexing for ${input.meetingId}`);
+        return;
+      }
+
+      console.log(`[MeetingController] Embedding generated (${summaryEmbedding.length} dimensions). Indexing in Neptune...`);
+      await graphService.indexMeeting({
+        projectId: input.projectId,
+        meetingId: input.meetingId,
+        recordId: input.recordId,
+        minutes: input.minutes,
+        summaryEmbedding,
+      });
+      console.log(`[MeetingController] ✓ Transcript successfully indexed in Neptune (meetingId=${input.meetingId})`);
+    } catch (error) {
+      // Graph indexing is best-effort — do not crash the server.
+      console.error(`[MeetingController] Neptune indexing FAILED for meetingId=${input.meetingId}:`, error);
+    }
   }
 
   async getAllMeetings(

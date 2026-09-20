@@ -3,10 +3,10 @@ import { meetingMinutesSchema, type MeetingMinutes } from "../utils/agent.types"
 import { createMeetingModel } from "../utils/model";
 
 const MOM_SYSTEM_PROMPT = `You convert raw meeting transcripts into accurate Minutes of Meeting.
-Extract only information supported by the transcript. Do not invent owners, dates, projects,
-"jira" only when the transcript asks to create or track a Jira issue, and "slack" only when
-it asks to notify or message Slack. Use "none" for all other actions. Use a concise slug for
-each action id. Return structured data only.`;
+Extract only information supported by the transcript. Do not invent owners, dates, projects, or decisions.
+Provide a complete, accurate Minutes of Meeting in readable Markdown as the summary field. Follow this order when supported by the transcript: Objective, Discussion Summary, Confirmed Deadlines, Decisions Made, Risks and Dependencies, Action Items, Next Follow-Up Meeting, Closing Notes.
+Use "jira" for externalAction only when the transcript asks to create or track a Jira issue, and "slack" only when it asks to notify or message Slack. Use "none" for all other actions.
+Use a concise unique slug for each action id. Return structured data only.`;
 
 export const createMeetingMinutesAgent = () =>
   new Agent({

@@ -27,9 +27,9 @@ export interface GraphContext {
 
 class GraphService {
   async indexMeeting(input: MeetingGraphInput): Promise<void> {
-    const { projectId, meetingId, recordId, minutes, summaryEmbedding } =
-      input;
+    const { projectId, meetingId, recordId, minutes, summaryEmbedding } = input;
 
+    console.log(`[GraphService] Upserting Project node: ${projectId}`);
     // Upsert Project node
     await runQuery(
       `MERGE (p:Project {projectId: $projectId})
@@ -37,6 +37,7 @@ class GraphService {
       { projectId },
     );
 
+    console.log(`[GraphService] Upserting Meeting node: ${meetingId}`);
     // Create Meeting node
     await runQuery(
       `MATCH (p:Project {projectId: $projectId})
@@ -51,11 +52,13 @@ class GraphService {
       },
     );
 
+    console.log(`[GraphService] Upserting MOM node: ${recordId} with ${summaryEmbedding.length}-dim embedding`);
     // Create MOM (Minutes of Meeting) node with embedding
     await runQuery(
       `MATCH (m:Meeting {meetingId: $meetingId})
        MERGE (mom:MOM {recordId: $recordId})
-       ON CREATE SET mom.summary = $summary, mom.embedding = $embedding, mom.createdAt = timestamp()
+       ON CREATE SET mom.summary = $summary, mom.createdAt = timestamp()
+       SET mom.embedding = $embedding
        MERGE (m)-[:HAS_MOM]->(mom)`,
       {
         meetingId,
@@ -67,6 +70,7 @@ class GraphService {
 
     // UNWIND participants
     if (minutes.participants.length > 0) {
+      console.log(`[GraphService] Indexing ${minutes.participants.length} participants`);
       await runQuery(
         `MATCH (m:Meeting {meetingId: $meetingId})
          UNWIND $participants AS name
@@ -78,6 +82,7 @@ class GraphService {
 
     // UNWIND decisions
     if (minutes.decisions.length > 0) {
+      console.log(`[GraphService] Indexing ${minutes.decisions.length} decisions`);
       await runQuery(
         `MATCH (m:Meeting {meetingId: $meetingId})
          UNWIND $decisions AS text
@@ -89,6 +94,7 @@ class GraphService {
 
     // UNWIND action items + assignees
     if (minutes.actionItems.length > 0) {
+      console.log(`[GraphService] Indexing ${minutes.actionItems.length} action items`);
       await runQuery(
         `MATCH (m:Meeting {meetingId: $meetingId})
          UNWIND $actions AS action
@@ -127,6 +133,8 @@ class GraphService {
        MERGE (curr)-[:PRECEDED_BY]->(prev)`,
       { projectId, meetingId },
     );
+
+    console.log(`[GraphService] ✓ Meeting ${meetingId} fully indexed in Neptune`);
   }
 
   async linkActionResult(
@@ -170,6 +178,7 @@ class GraphService {
     projectId: string,
     queryEmbedding: number[],
   ): Promise<GraphContext | null> {
+    console.log(`[GraphService] Fetching project context for projectId=${projectId}`);
     try {
       // Vector similarity search for top MOM nodes, then expand graph
       const rows = await runQuery<{
@@ -205,6 +214,8 @@ class GraphService {
                 coalesce(ai.status, '') AS actionStatus`,
         { projectId, queryEmbedding },
       );
+
+      console.log(`[GraphService] Graph query returned ${rows.length} rows`);
 
       if (!rows.length) return null;
 
@@ -242,7 +253,8 @@ class GraphService {
         meetings: Array.from(meetingMap.values()),
         recentActions: Array.from(actionMap.values()),
       };
-    } catch {
+    } catch (err) {
+      console.error(`[GraphService] getProjectContext failed:`, err);
       return null;
     }
   }

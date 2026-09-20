@@ -1,57 +1,58 @@
-import { OpenRouter } from "@openrouter/sdk";
-import { requireConfigValue } from "../utils/config";
+import { Agent, Message, TextBlock } from "@strands-agents/sdk";
+import { createMeetingModel } from "../utils/model";
 
 class ConversationService {
-  private client?: OpenRouter;
-
-  private getClient() {
-    this.client ??= new OpenRouter({
-      apiKey: requireConfigValue("OPENROUTER_API_KEY"),
-    });
-    return this.client;
-  }
-
   async chat(
     userMessage: string,
     systemPrompt: string,
     conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>,
   ): Promise<string> {
     try {
-      const messages = [
-        ...(conversationHistory || []),
-        {
-          role: "user" as const,
-          content: userMessage,
-        },
-      ];
+      console.log(
+        `[ConversationService] Sending chat request with ${conversationHistory?.length ?? 0} history turns`,
+      );
 
-      console.log(`[ConversationService] Sending chat request with ${messages.length} messages`);
-
-      const response = await this.getClient().chat.send({
-        chatRequest: {
-          model: "openai/gpt-4o-mini",
-          messages: messages.map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-          system_prompt: systemPrompt,
-          max_tokens: 2048,
-          stream: false,
-        },
+      const agent = new Agent({
+        id: `conversation-${Date.now()}`,
+        name: "Meeting Assistant",
+        model: createMeetingModel(),
+        systemPrompt:
+          systemPrompt ||
+          "You are a helpful assistant for meeting minutes, projects, and team operations.",
+        printer: false,
       });
 
-      const answer = response.choices?.[0]?.message?.content;
+      if (conversationHistory?.length) {
+        for (const turn of conversationHistory) {
+          if (!turn.content?.trim()) continue;
+          agent.messages.push(
+            new Message({
+              role: turn.role,
+              content: [new TextBlock(turn.content)],
+            }),
+          );
+        }
+      }
+
+      const result = await agent.invoke(userMessage);
+
+      const lastMsg = result.lastMessage ?? agent.messages.at(-1);
+      const answer =
+        lastMsg?.content
+          ?.map((block: any) =>
+            typeof block?.text === "string" ? block.text : "",
+          )
+          .join("")
+          .trim() || "";
+
       if (!answer) {
-        console.warn("[ConversationService] No content in response");
+        console.warn("[ConversationService] No content in response:", result);
         return "I couldn't generate a response. Please try again.";
       }
 
-      if (typeof answer !== "string") {
-        console.error("[ConversationService] Response content is not a string:", answer);
-        return "I encountered an error processing your request.";
-      }
-
-      console.log(`[ConversationService] Successfully generated response (${answer.length} chars)`);
+      console.log(
+        `[ConversationService] Successfully generated response (${answer.length} chars)`,
+      );
       return answer;
     } catch (error) {
       console.error("[ConversationService] Error in chat:", error);
@@ -61,4 +62,3 @@ class ConversationService {
 }
 
 export default new ConversationService();
-
