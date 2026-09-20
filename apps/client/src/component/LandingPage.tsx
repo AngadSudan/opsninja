@@ -1,214 +1,59 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import GetStartedButton from "@/component/GetStartedButton";
 import BrandLogo from "@/component/BrandLogo";
 
-// Scenarios for the interactive live hero preview
-interface DemoScenario {
-  id: string;
-  title: string;
-  meetingName: string;
-  duration: string;
-  speakers: string;
-  timestamp: string;
-  transcriptSnippet: {
-    speaker: string;
-    role: string;
-    text: string;
-    highlight?: string;
-  }[];
-  extractedDecisions: string[];
-  extractedActions: string[];
-  targetTool: string;
-  actionTitle: string;
-  actionSummary: string;
-  actionTag: string;
-}
-
-const DEMO_SCENARIOS: DemoScenario[] = [
+const workflow = [
   {
-    id: "sprint",
-    title: "Sprint Planning",
-    meetingName: "Core Platform • Sprint 48 Planning",
-    duration: "42 min",
-    speakers: "4 attendees",
-    timestamp: "Today, 10:30 AM",
-    transcriptSnippet: [
-      {
-        speaker: "Alex Rivera",
-        role: "Staff Architect",
-        text: "We need to finalize the DynamoDB partition keys before pushing the auth refactor to staging.",
-        highlight: "finalize the DynamoDB partition keys",
-      },
-      {
-        speaker: "Elena Rostova",
-        role: "Product Lead",
-        text: "Agreed. Let's gate this behind security signoff and track it in Jira under PROJ-Orca.",
-        highlight: "gate this behind security signoff",
-      },
-    ],
-    extractedDecisions: [
-      "DynamoDB partition schema locked for User & Vault tables",
-      "OAuth callback redirect loops eliminated from middleware",
-    ],
-    extractedActions: [
-      "Alex to configure Cognito User Pool client attributes",
-      "Stage Jira issue in ORCA for database migration index",
-    ],
-    targetTool: "Jira Software",
-    actionTitle: "Create Jira Ticket: [ORCA-104] DynamoDB Partition Key Migration",
-    actionSummary: "High priority task assigned to Core Platform team. Target release: v2.4 staging.",
-    actionTag: "PROJ-ORCA #104",
+    label: "Meeting",
+    detail: "Architecture review transcript",
   },
   {
-    id: "architecture",
-    title: "Architecture Review",
-    meetingName: "Infra Sync • Event Bus Scalability",
-    duration: "35 min",
-    speakers: "3 attendees",
-    timestamp: "Yesterday, 3:15 PM",
-    transcriptSnippet: [
-      {
-        speaker: "Kenji Sato",
-        role: "Principal SRE",
-        text: "The SNS to SQS fanout latency spiked during last Friday's load test. We need dead-letter queues.",
-        highlight: "SNS to SQS fanout latency spiked",
-      },
-      {
-        speaker: "Maya Lin",
-        role: "Backend Lead",
-        text: "I'll create the Terraform PR today. Make sure we log an action to Obsidian operational memory.",
-        highlight: "log an action to Obsidian operational memory",
-      },
-    ],
-    extractedDecisions: [
-      "Mandatory DLQ configured for all ingestion worker queues",
-      "Obsidian knowledge vault updated with AWS architecture diagram",
-    ],
-    extractedActions: [
-      "Maya to submit Terraform module for DLQ alarms",
-      "Dispatch Slack alert to #eng-infra with latency SLO targets",
-    ],
-    targetTool: "Slack & Obsidian",
-    actionTitle: "Post to #eng-infra & Link [[Architecture-DLQ-RFC]] in Vault",
-    actionSummary: "Broadcast architectural decision and link meeting notes to team graph.",
-    actionTag: "#ENG-INFRA",
+    label: "Decision",
+    detail: "API migration approved",
   },
   {
-    id: "incident",
-    title: "Incident Postmortem",
-    meetingName: "P1 Retrospective • Redis Cache Eviction",
-    duration: "50 min",
-    speakers: "5 attendees",
-    timestamp: "Sep 18, 2:00 PM",
-    transcriptSnippet: [
-      {
-        speaker: "David Kim",
-        role: "DevOps Lead",
-        text: "The root cause was volatile-lru eviction discarding active JWT session cache keys.",
-        highlight: "volatile-lru eviction discarding active JWT session cache keys",
-      },
-      {
-        speaker: "Sarah Vance",
-        role: "VP Engineering",
-        text: "Let's increase maxmemory and add an automated CloudWatch alarm before this Friday.",
-        highlight: "add an automated CloudWatch alarm",
-      },
-    ],
-    extractedDecisions: [
-      "Session store migrated to isolated Redis cluster with noeviction policy",
-      "Postmortem report approved for SOC-2 compliance log",
-    ],
-    extractedActions: [
-      "Raise CloudWatch memory threshold alarm at 75%",
-      "Schedule Jira remediation item for Friday deployment window",
-    ],
-    targetTool: "Jira & PagerDuty",
-    actionTitle: "Create Jira Remediation: [OPS-892] Redis Memory Buffer & CloudWatch Alarm",
-    actionSummary: "P1 follow-up action with SLA deadline of Friday 17:00 UTC.",
-    actionTag: "INCIDENT-P1 #892",
+    label: "Action",
+    detail: "Create Jira migration ticket",
+  },
+  {
+    label: "Human approval",
+    detail: "Priya Menon reviews payload",
+  },
+  {
+    label: "Jira / Slack",
+    detail: "External work is dispatched",
   },
 ];
 
+const proof = [
+  ["Approval", "External writes wait for human review."],
+  ["Provenance", "Answers stay linked to meetings, decisions, and actions."],
+  ["Memory", "Project context persists across future work."],
+];
+
 export default function LandingPage() {
-  const [activeScenarioId, setActiveScenarioId] = useState<string>("sprint");
-  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(true);
-  const [actionApproved, setActionApproved] = useState<boolean>(false);
-  const [isApproving, setIsApproving] = useState<boolean>(false);
-
-  const activeScenario =
-    DEMO_SCENARIOS.find((s) => s.id === activeScenarioId) || DEMO_SCENARIOS[0];
-
-  const selectScenario = (id: string) => {
-    setActiveScenarioId(id);
-    setActionApproved(false);
-    setIsApproving(false);
-  };
-
-  const handleApproveAction = () => {
-    if (actionApproved || isApproving) return;
-    setIsApproving(true);
-    setTimeout(() => {
-      setIsApproving(false);
-      setActionApproved(true);
-    }, 450);
-  };
-
   return (
-    <div className="landing-shell relative min-h-screen bg-[#f5f2ec] text-[#1c1b17] selection:bg-[#c3562c]/20 selection:text-[#1c1b17]">
-      {/* ── Fixed / Sticky Glass Navbar ───────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-[#1c1b17]/10 bg-[#fffdfa]/88 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-10">
-          <Link
-            href="/"
-            className="group flex items-center gap-3 transition"
-          >
-            <BrandLogo className="h-9 w-9" priority />
-            <div className="flex flex-col">
-              <span className="flex items-center gap-1.5 text-base font-extrabold tracking-tight text-[#1c1b17]">
-                Ops Ninja
-                <span className="rounded-md bg-[#c3562c]/12 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9f3f1e]">
-                  Gatekeeper
-                </span>
-              </span>
-            </div>
+    <div className="min-h-screen bg-[var(--page)] text-[var(--ink)]">
+      <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/92 backdrop-blur-xl">
+        <div className="editorial-page flex min-h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <BrandLogo className="h-8 w-8" priority />
+            <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-[#706a60] md:flex">
-            <a
-              href="#how-it-works"
-              className="transition hover:text-[#1c1b17]"
-            >
-              How It Works
-            </a>
-            <a
-              href="#approval-gate"
-              className="transition hover:text-[#1c1b17]"
-            >
-              The Approval Gate
-            </a>
-            <a
-              href="#integrations"
-              className="transition hover:text-[#1c1b17]"
-            >
-              Integrations
-            </a>
-            <a
-              href="#security"
-              className="transition hover:text-[#1c1b17]"
-            >
-              Vault Security
-            </a>
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-[var(--ink-2)] md:flex" aria-label="Landing">
+            <a href="#how-it-works" className="hover:text-[var(--ink)]">How it works</a>
+            <a href="#approval" className="hover:text-[var(--ink)]">Approval</a>
+            <a href="#integrations" className="hover:text-[var(--ink)]">Integrations</a>
+            <Link href="/about" className="hover:text-[var(--ink)]">About</Link>
           </nav>
 
-          {/* Nav Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/signin"
-              className="hidden px-3.5 py-2 text-xs font-semibold text-[#706a60] transition hover:text-[#1c1b17] sm:inline-block"
+              className="hidden min-h-11 items-center rounded-[5px] px-3 text-sm font-semibold text-[var(--ink-2)] hover:text-[var(--ink)] sm:inline-flex"
             >
               Sign in
             </Link>
@@ -217,653 +62,109 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── Hero Section ───────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-7xl px-6 pb-12 pt-10 lg:px-10 lg:pb-16 lg:pt-14">
-        <div className="grid items-center gap-10 lg:grid-cols-[0.88fr_1.12fr]">
+      <main>
+        <section className="editorial-page grid min-h-[calc(100svh-4rem)] items-center gap-12 py-14 lg:grid-cols-[minmax(0,1.02fr)_minmax(380px,0.78fr)] lg:py-20">
           <div>
-          <h1 className="max-w-3xl text-4xl font-extrabold tracking-[-0.03em] text-[#1c1b17] sm:text-5xl lg:text-[3.65rem] lg:leading-[1.02]">
-            Ops Ninja turns meetings into operational context and executable work.
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-[#5f584f] sm:text-lg">
-            Capture decisions, stage follow-up actions, require human approval,
-            execute into Jira and Slack, then keep the evidence in durable project memory.
-          </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <GetStartedButton variant="large" />
-            <a
-              href="#live-preview"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#1c1b17]/15 bg-white px-6 py-3.5 text-sm font-bold text-[#1c1b17] transition hover:border-[#1c1b17]/35 hover:bg-[#f8f6f1]"
-            >
-              <span>Inspect the workflow</span>
-              <span aria-hidden="true">↓</span>
-            </a>
-          </div>
-          <div className="mt-8 grid max-w-xl gap-2 text-xs font-semibold text-[#6f675d] sm:grid-cols-3">
-            {["Human approval", "Provenance-first chat", "Jira + Slack execution"].map((item) => (
-              <span key={item} className="border-l border-[#c3562c]/35 pl-3">
-                {item}
-              </span>
-            ))}
-          </div>
+            <h1 className="max-w-4xl text-[clamp(3.1rem,8vw,7.4rem)] font-bold leading-[0.92] tracking-tight">
+              Turn meetings into operational context.
+            </h1>
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-[var(--ink-2)]">
+              Ops Ninja converts meeting transcripts into decisions, approved
+              actions, and persistent project knowledge, with source evidence
+              kept close to every answer.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <GetStartedButton variant="large" />
+              <a href="#how-it-works" className="secondary-action">
+                See the workflow
+              </a>
+            </div>
           </div>
 
-          <div className="rounded-lg border border-[#27221c] bg-[#121615] p-4 text-[#ede8dd] shadow-xl shadow-[#1c1b17]/12">
-            <div className="grid gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#9d9588] sm:grid-cols-6">
-              {["Meeting", "Context", "Decision", "Action", "Review", "Execute"].map((step, index) => (
-                <div key={step} className="rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2">
-                  <span className={index === 4 ? "text-[#e0b46f]" : index === 5 ? "text-[#65c08c]" : "text-[#d8d0c3]"}>
-                    {step}
+          <div className="border-y border-[var(--line)] py-7">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-5">
+              <div>
+                <p className="text-sm font-bold">Client meet</p>
+                <p className="mt-1 text-sm text-[var(--ink-3)]">
+                  3 meetings · 7 decisions · 12 actions
+                </p>
+              </div>
+              <span className="status-text status-pending">Review required</span>
+            </div>
+
+            <ol className="divide-y divide-[var(--line)]">
+              {workflow.map((item, index) => (
+                <li key={item.label} className="grid grid-cols-[3rem_minmax(0,1fr)] gap-4 py-5">
+                  <span className={index === 3 ? "font-bold text-[var(--orange)]" : "font-bold text-[var(--ink-3)]"}>
+                    {String(index + 1).padStart(2, "0")}
                   </span>
+                  <div>
+                    <p className="text-lg font-bold">{item.label}</p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--ink-2)]">{item.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="border-t border-[var(--line)] bg-white">
+          <div className="editorial-page grid gap-12 py-20 lg:grid-cols-[0.9fr_1.1fr]">
+            <h2 className="max-w-xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+              The product record becomes the interface.
+            </h2>
+            <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
+              {proof.map(([title, body]) => (
+                <div key={title} className="grid gap-3 py-6 sm:grid-cols-[12rem_minmax(0,1fr)]">
+                  <h3 className="text-lg font-bold">{title}</h3>
+                  <p className="text-sm leading-7 text-[var(--ink-2)]">{body}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-              <div className="rounded-lg border border-white/10 bg-[#1a201e] p-4">
-                <div className="flex items-center justify-between">
-                  <strong className="text-sm">Sprint 48 planning</strong>
-                  <span className="ops-status ops-status-pending border-[#e0b46f]/30 bg-[#e0b46f]/10 text-[#f0c681]">Needs review</span>
-                </div>
-                <div className="mt-4 space-y-3">
-                  <div className="rounded-md bg-white/[0.04] p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#65c08c]">Decision</p>
-                    <p className="mt-1 text-sm text-[#f5efe5]">Lock DynamoDB partition schema before staging auth refactor.</p>
-                  </div>
-                  <div className="rounded-md bg-white/[0.04] p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#e0b46f]">External action</p>
-                    <p className="mt-1 text-sm text-[#f5efe5]">Create Jira issue ORCA-104 with security signoff blocker.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-lg border border-[#c3562c]/35 bg-[#201915] p-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#d99167]">Provenance</p>
-                <blockquote className="mt-3 border-l border-[#c3562c] pl-3 text-sm leading-6 text-[#e8dfd3]">
-                  “Gate this behind security signoff and track it in Jira under PROJ-Orca.”
-                </blockquote>
-                <button className="mt-4 w-full rounded-lg bg-[#c3562c] px-4 py-3 text-xs font-bold text-white transition hover:bg-[#9f3f1e]">
-                  Approve and dispatch
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
+        </section>
 
-        {/* ── Interactive Live Console Mockup ────────────────────── */}
-        <div
-          id="live-preview"
-          className="mt-10 overflow-hidden rounded-lg border border-[#d6ded4] bg-[#edf2ea]/70 p-2 shadow-sm sm:p-3 lg:mt-12"
-        >
-          {/* Mock Window Shell */}
-          <div className="rounded-md border border-[#d6ded4] bg-white shadow-none">
-            {/* Window Titlebar */}
-            <div className="flex flex-wrap items-center justify-between border-b border-[#e5ebe3] bg-[#f7f9f6] px-4 py-3 sm:px-6">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <span className="h-3 w-3 rounded-full bg-[#e87061]/80" />
-                  <span className="h-3 w-3 rounded-full bg-[#f4be48]/80" />
-                  <span className="h-3 w-3 rounded-full bg-[#62c554]/80" />
-                </div>
-                <span className="ml-3 hidden text-xs font-semibold text-[#596257] sm:inline">
-                  {activeScenario.meetingName}
-                </span>
-              </div>
+        <section id="approval" className="editorial-page py-20">
+          <div className="grid gap-8 border-y border-[var(--line)] py-10 lg:grid-cols-[0.72fr_1.28fr]">
+            <h2 className="text-3xl font-bold tracking-tight">Human approval is the boundary.</h2>
+            <p className="max-w-3xl text-lg leading-8 text-[var(--ink-2)]">
+              Ops Ninja can draft a Jira issue, prepare a Slack update, or
+              preserve a knowledge change. The system keeps that work staged
+              until a person verifies the payload and the source relationship.
+            </p>
+          </div>
+        </section>
 
-              {/* Scenario Switcher Tabs */}
-              <div className="flex items-center gap-1 rounded-xl bg-[#e8eee6] p-1 text-xs">
-                {DEMO_SCENARIOS.map((scenario) => (
-                  <button
-                    key={scenario.id}
-                    type="button"
-                    onClick={() => selectScenario(scenario.id)}
-                    className={`rounded-lg px-3 py-1 font-semibold transition ${
-                      activeScenarioId === scenario.id
-                        ? "bg-white text-[#20251f] shadow-sm"
-                        : "text-[#626d60] hover:text-[#20251f]"
-                    }`}
-                  >
-                    {scenario.title}
-                  </button>
-                ))}
-              </div>
-
-              {/* Live Audio / Status Pill */}
-              <div className="hidden items-center gap-2 rounded-full border border-[#16a34a]/30 bg-[#f0fdf4] px-2.5 py-1 text-[11px] font-bold text-[#15803d] sm:flex">
-                <span className="h-2 w-2 rounded-full bg-[#16a34a] animate-pulse" />
-                <span>ACTIVE VAULT</span>
-              </div>
-            </div>
-
-            {/* Window Body Grid: 3 Live Columns */}
-            <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-3">
-              {/* Column 1: Audio Transcript Ingestion */}
-              <div className="flex flex-col rounded-xl border border-[#e5ebe3] bg-[#fbfcfb] p-4">
-                <div className="flex items-center justify-between border-b border-[#edf2ec] pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#59745b]">
-                      01 • Audio Ingestion
-                    </span>
-                    <h3 className="text-xs font-bold text-[#20251f]">
-                      Live Transcript Stream
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                    className="flex items-center gap-1 rounded-md border border-[#dfe5dc] bg-white px-2 py-1 text-[10px] font-semibold text-[#596257] hover:bg-[#f4f7f2]"
-                  >
-                    {isPlayingAudio ? (
-                      <>
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
-                        </svg>
-                        <span>Pause</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="m8 5 11 7-11 7V5Z" />
-                        </svg>
-                        <span>Play</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Animated Audio Wave Simulation */}
-                <div className="my-3 flex items-center justify-center gap-1 rounded-lg bg-[#eef3ec] px-3 py-2">
-                  {[40, 75, 30, 90, 60, 100, 45, 80, 50, 85, 35, 70, 95, 55, 65].map((h, i) => (
-                    <span
-                      key={i}
-                      className={`w-1 rounded-full bg-[#59745b] transition-all duration-300 ${
-                        isPlayingAudio ? "animate-pulse" : "opacity-40"
-                      }`}
-                      style={{
-                        height: isPlayingAudio ? `${Math.max(10, (h * (i % 3 + 1)) % 28 + 6)}px` : "6px",
-                        animationDelay: `${i * 60}ms`,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Dialogue stream cards */}
-                <div className="mt-1 space-y-3">
-                  {activeScenario.transcriptSnippet.map((line, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-lg border border-[#e8eee6] bg-white p-3 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#20251f]">
-                          {line.speaker}
-                        </span>
-                        <span className="text-[10px] font-medium text-[#7a8678]">
-                          {line.role}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-xs leading-relaxed text-[#596257]">
-                        “{line.text}”
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-auto pt-3 text-[11px] text-[#859283]">
-                  <span>{activeScenario.duration} · {activeScenario.speakers}</span>
-                </div>
-              </div>
-
-              {/* Column 2: AI Synthesis & Knowledge Graph */}
-              <div className="flex flex-col rounded-xl border border-[#e5ebe3] bg-[#fbfcfb] p-4">
-                <div className="border-b border-[#edf2ec] pb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#2563eb]">
-                    02 • Signal Synthesis
-                  </span>
-                  <h3 className="text-xs font-bold text-[#20251f]">
-                    Extracted Decisions & MOM
-                  </h3>
-                </div>
-
-                {/* Decisions block */}
-                <div className="mt-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#3d533f]">
-                    Locked Decisions
-                  </p>
-                  <div className="mt-2 space-y-2">
-                    {activeScenario.extractedDecisions.map((decision, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-2 rounded-lg border border-[#e0ebd9] bg-[#f5f9f3] p-2.5 text-xs text-[#20251f]"
-                      >
-                        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#16a34a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
-                        </svg>
-                        <span className="leading-snug">{decision}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Staged actions block */}
-                <div className="mt-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#b15d3d]">
-                    Staged Proposals
-                  </p>
-                  <div className="mt-2 space-y-2">
-                    {activeScenario.extractedActions.map((action, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-2 rounded-lg border border-[#faeade] bg-[#fff8f5] p-2.5 text-xs text-[#20251f]"
-                      >
-                        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#c2491d]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                        </svg>
-                        <span className="leading-snug">{action}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-auto pt-4 border-t border-[#edf2ec]">
-                  <div className="flex items-center gap-2 text-[11px] text-[#59745b]">
-                    <span>Linked to Obsidian Vault</span>
-                    <span className="h-1 w-1 rounded-full bg-[#59745b]" />
-                    <span className="font-mono text-[10px]">[[{activeScenario.id}.md]]</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: The Human Approval Gate */}
-              <div className="flex flex-col rounded-xl border-2 border-[#20251f]/15 bg-[#20251f] p-4 text-white shadow-md">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#f59e0b]">
-                      03 • Human Gate
-                    </span>
-                    <h3 className="text-xs font-bold text-white">
-                      Cryptographic Execution
-                    </h3>
-                  </div>
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-[#e5ebe3]">
-                    {activeScenario.targetTool}
-                  </span>
-                </div>
-
-                {/* Staged Payload Card */}
-                <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3.5 backdrop-blur">
-                  <div className="flex items-center justify-between">
-                    <span className="rounded bg-[#c2491d] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      Action Staged
-                    </span>
-                    <span className="font-mono text-[10px] text-[#aeb9ac]">
-                      {activeScenario.actionTag}
-                    </span>
-                  </div>
-
-                  <h4 className="mt-2.5 text-sm font-bold text-white leading-snug">
-                    {activeScenario.actionTitle}
-                  </h4>
-
-                  <p className="mt-2 text-xs leading-relaxed text-[#c6d1c4]">
-                    {activeScenario.actionSummary}
-                  </p>
-
-                  <div className="mt-3 flex items-center gap-2 border-t border-white/10 pt-3 text-[11px] text-[#9eaa9b]">
-                    <span className="inline-block h-2 w-2 rounded-full bg-[#f59e0b] animate-pulse" />
-                    <span>Awaiting human sign-off before dispatch</span>
-                  </div>
-                </div>
-
-                {/* Interactive Gate Trigger Button */}
-                <div className="mt-auto pt-4">
-                  {actionApproved ? (
-                    <div className="flex items-center justify-between rounded-xl bg-[#16a34a] p-3 text-white shadow-lg animate-in fade-in zoom-in-95 duration-200">
-                      <div className="flex items-center gap-2 text-xs font-bold">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
-                          </svg>
-                        </span>
-                        <span>Dispatched to {activeScenario.targetTool}!</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActionApproved(false)}
-                        className="text-[10px] underline hover:text-white/80"
-                      >
-                        Reset demo
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleApproveAction}
-                      disabled={isApproving}
-                      className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#59745b] to-[#405842] py-3 text-xs font-bold text-white shadow-lg transition hover:from-[#668468] hover:to-[#49654b] active:scale-[0.98] cursor-pointer"
-                    >
-                      {isApproving ? (
-                        <>
-                          <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          <span>Verifying & Dispatching...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Approve & Execute Action</span>
-                          <span className="transition-transform group-hover:translate-x-1">
-                            →
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                  <p className="mt-2 text-center text-[10px] text-[#8d9b8a]">
-                    Click to test the live approval gate
+        <section id="integrations" className="border-t border-[var(--line)] bg-white">
+          <div className="editorial-page py-16">
+            <div className="grid divide-y divide-[var(--line)] border-y border-[var(--line)] md:grid-cols-3 md:divide-x md:divide-y-0">
+              {["Jira", "Slack", "Notion"].map((name) => (
+                <div key={name} className="p-6">
+                  <h3 className="text-xl font-bold">{name}</h3>
+                  <p className="mt-3 text-sm leading-6 text-[var(--ink-2)]">
+                    {name === "Jira"
+                      ? "Approved actions can create and update issues."
+                      : name === "Slack"
+                        ? "Approved decisions can post channel updates."
+                        : "Knowledge changes can synchronize into a workspace."}
                   </p>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+      </main>
 
-        {/* ── Partner Integrations Bar ──────────────────────────── */}
-        <div id="integrations" className="mt-16 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7a8678]">
-            Works natively with your engineering ecosystem
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            {[
-              { name: "Obsidian", badge: "Vault Sync" },
-              { name: "Jira Software", badge: "Action Gate" },
-              { name: "Slack", badge: "Alerts & Feeds" },
-              { name: "Linear", badge: "Issue Tracker" },
-              { name: "Google Meet", badge: "Audio Transcripts" },
-              { name: "Zoom", badge: "Cloud Recordings" },
-            ].map((tool) => (
-              <div
-                key={tool.name}
-                className="group flex items-center gap-2 rounded-xl border border-[#dfe5dc] bg-white px-4 py-2.5 text-xs font-bold text-[#20251f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#9db29b] hover:shadow-md"
-              >
-                <span>{tool.name}</span>
-                <span className="rounded bg-[#f1f5ee] px-1.5 py-0.5 text-[10px] font-semibold text-[#59745b]">
-                  {tool.badge}
-                </span>
-              </div>
-            ))}
+      <footer className="border-t border-[var(--line)]">
+        <div className="editorial-page flex flex-col gap-4 py-8 text-sm text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <BrandLogo className="h-5 w-5" />
+            <span className="font-bold text-[var(--ink)]">Ops Ninja</span>
           </div>
-        </div>
-      </section>
-
-      {/* ── Section: A Closed Operational Loop ────────────────── */}
-      <section
-        id="how-it-works"
-        className="border-y border-[#dfe5dc] bg-white px-6 py-14 lg:px-10 lg:py-16"
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#59745b]">
-              The Ops Ninja Engine
-            </span>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[#20251f] sm:text-4xl">
-              A closed operational loop.
-            </h2>
-            <p className="mt-4 text-base text-[#596257]">
-              Meetings are only as good as what happens after them. We turn 60
-              minutes of talk into verified, accountable real-world outcomes.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-px overflow-hidden border border-[#dfe5dc] bg-[#dfe5dc] md:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "Capture the Record",
-                description:
-                  "Raw meeting transcripts become high-density, structured Minutes of the Meeting (MOM) with explicit decisions, risks, attendees, and timelines.",
-                tag: "Zero Noise",
-              },
-              {
-                step: "02",
-                title: "Connect the Context",
-                description:
-                  "Meeting notes automatically index into your linked Obsidian markdown vault, creating persistent graph connections across teams, codebases, and projects.",
-                tag: "Team Graph",
-              },
-              {
-                step: "03",
-                title: "Act with Intent",
-                description:
-                  "Our orchestrator drafts precision Jira tickets, Slack announcements, and PR reviews. No external API call is dispatched until a human confirms.",
-                tag: "Human Gate",
-              },
-            ].map((card) => (
-              <div
-                key={card.step}
-                className="group relative flex flex-col bg-[#fafaf8] p-5 transition hover:bg-[#f3f7f1]"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-black text-[#c2491d]">
-                    {card.step}
-                  </span>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#59745b] shadow-xs border border-[#dfe5dc]">
-                    {card.tag}
-                  </span>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-[#20251f]">
-                  {card.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#596257]">
-                  {card.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section: The Approval Gate (Why Ops Ninja is Different) ─ */}
-      <section
-        id="approval-gate"
-        className="relative mx-auto max-w-7xl px-6 py-14 lg:px-10 lg:py-16"
-      >
-        <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#c2491d]/30 bg-[#fff5f2] px-3 py-1 text-xs font-bold text-[#c2491d]">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 5 6v5c0 4.5 2.9 8.3 7 10 4.1-1.7 7-5.5 7-10V6l-7-3Z" />
-              </svg>
-              <span>Zero Hallucinated Writes</span>
-            </div>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#20251f] sm:text-4xl lg:text-5xl">
-              AI can prepare the work.
-              <br />
-              <span className="text-[#59745b]">Only you can release it.</span>
-            </h2>
-            <p className="mt-6 text-base leading-relaxed text-[#596257] sm:text-lg">
-              Generic AI meeting assistants trigger blind automations that pollute
-              your Jira backlogs, confuse engineers, and write unintended changes.
-            </p>
-            <p className="mt-3 text-base leading-relaxed text-[#596257]">
-              Ops Ninja introduces a cryptographic human checkpoint. Every
-              proposed ticket, Slack broadcast, or code review is staged with full
-              context, letting you review the exact diff in seconds before approval.
-            </p>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-[#dfe5dc] bg-white p-4">
-                <strong className="block text-2xl font-bold text-[#20251f]">
-                  100%
-                </strong>
-                <span className="text-xs text-[#626d60]">
-                  Human verified external actions
-                </span>
-              </div>
-              <div className="rounded-xl border border-[#dfe5dc] bg-white p-4">
-                <strong className="block text-2xl font-bold text-[#20251f]">
-                  &lt; 5 sec
-                </strong>
-                <span className="text-xs text-[#626d60]">
-                  Single-click review turnaround
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Gate Comparison Visual */}
-          <div className="space-y-4">
-            {/* The Old Way */}
-            <div className="rounded-lg border border-[#f5c6cb] bg-[#fff5f5] p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#b02a37]">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-                <span>The Blind Automation Trap</span>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-[#721c24]">
-                Traditional bots automatically post unverified action items to
-                Jira, creating duplicate tickets, missing context, and eroding team
-                trust.
-              </p>
-            </div>
-
-            {/* The Ops Ninja Way */}
-            <div className="rounded-lg border-2 border-[#16a34a]/30 bg-white p-6 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a]">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
-                  </svg>
-                  <span>The Ops Ninja Gate Protocol</span>
-                </div>
-                <span className="rounded bg-[#f0fdf4] px-2 py-0.5 text-[10px] font-bold text-[#15803d]">
-                  Protected
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-[#20251f]">
-                Actions are staged with exact payload inspection, team assignment,
-                and source transcript provenance. You hold the execution key at all times.
-              </p>
-              <div className="mt-4 flex items-center gap-3 border-t border-[#edf2ec] pt-3 text-xs font-semibold text-[#59745b]">
-                <span>Provenance traceable</span>
-                <span>•</span>
-                <span>Audit logged</span>
-                <span>•</span>
-                <span>Instant dispatch</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section: Security & Privacy ───────────────────────── */}
-      <section
-        id="security"
-        className="border-t border-[#dfe5dc] bg-[#f2f6f0]/60 px-6 py-14 lg:px-10 lg:py-16"
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#59745b]">
-              Enterprise Integrity
-            </span>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[#20251f]">
-              Your conversations never become someone else&apos;s model.
-            </h2>
-            <p className="mt-4 text-sm text-[#596257]">
-              Ops Ninja adheres to strict data isolation protocols. Transcripts and
-              MOMs remain under your organization&apos;s encryption boundaries.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "Local-First Vaults",
-                desc: "Obsidian sync writes directly to markdown files on your infrastructure.",
-              },
-              {
-                title: "Zero Model Training",
-                desc: "Your proprietary transcripts are never retained for third-party LLM training.",
-              },
-              {
-                title: "OAuth 2.0 PKCE",
-                desc: "Direct enterprise tokens for Atlassian Jira, Slack, and Cognito.",
-              },
-              {
-                title: "Immutable Audits",
-                desc: "Every approval is signed with user attribution and execution timestamp.",
-              },
-            ].map((sec, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-[#dfe5dc] bg-white p-5 shadow-xs"
-              >
-                <h3 className="text-sm font-bold text-[#20251f]">
-                  {sec.title}
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-[#626d60]">
-                  {sec.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Bottom Call to Action Banner ──────────────────────── */}
-      <section className="mx-auto max-w-7xl px-6 py-14 lg:px-10 lg:py-16">
-        <div className="relative overflow-hidden rounded-lg bg-[#20251f] px-8 py-12 text-center text-white shadow-none sm:px-16 sm:py-16">
-          <div className="relative z-10 mx-auto max-w-2xl">
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#b7d0b7]">
-              Get started in seconds
-            </span>
-            <h2 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-              Turn meeting chaos into decisive operational velocity.
-            </h2>
-            <p className="mt-6 text-sm leading-relaxed text-[#c6d1c4] sm:text-base">
-              Experience meeting intelligence where AI prepares the work and you
-              retain complete control over every real-world action.
-            </p>
-            <div className="mt-10 flex justify-center">
-              <GetStartedButton variant="white" />
-            </div>
-            <p className="mt-4 text-xs text-[#8d9b8a]">
-              Instant setup · Works with your existing Jira & Obsidian setup
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Comprehensive Modern Footer ───────────────────────── */}
-      <footer className="border-t border-[#dfe5dc] bg-[#fafaf8] px-6 py-12 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <BrandLogo className="h-6 w-6" />
-              <span className="text-base font-bold tracking-tight text-[#20251f]">
-                Ops Ninja
-              </span>
-              <span className="text-xs text-[#7a8678]">
-                — Operational clarity, one approved action at a time.
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6 text-xs font-semibold text-[#596257]">
-              <Link href="/about" className="hover:text-[#20251f]">
-                About
-              </Link>
-              <Link href="/privacy-policy" className="hover:text-[#20251f]">
-                Privacy Policy
-              </Link>
-              <Link href="/offline" className="hover:text-[#20251f]">
-                Offline Mode
-              </Link>
-              <span className="flex items-center gap-1.5 text-[#16a34a]">
-                <span className="h-2 w-2 rounded-full bg-[#16a34a]" />
-                All systems operational
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-8 border-t border-[#edf2ec] pt-6 text-xs text-[#8d988c] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <span>© {new Date().getFullYear()} Ops Ninja Inc. All rights reserved.</span>
-            <span>Local-first · Human Gate · Zero Blind Writes</span>
+          <div className="flex gap-6">
+            <Link href="/about" className="hover:text-[var(--ink)]">About</Link>
+            <Link href="/integrations" className="hover:text-[var(--ink)]">Integrations</Link>
+            <Link href="/home" className="hover:text-[var(--ink)]">Workspace</Link>
           </div>
         </div>
       </footer>
