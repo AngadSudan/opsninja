@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useProject } from "@/hooks/useProject";
 import { useChat } from "@/hooks/useChat";
 import { useMessages, useSendMessage } from "@/hooks/useMessage";
+import MarkdownContent from "@/component/MarkdownContent";
 
 type ProjectChatDetailsPageProps = {
   chatId: string;
@@ -65,7 +66,9 @@ export default function ProjectChatDetailsPage({
             Chat Threads
           </Link>
           <span>/</span>
-          <span className="text-[#20251f] font-bold">{chat?.chat_name || "Conversation"}</span>
+          <span className="text-[#20251f] font-bold">
+            {chat?.chat_name || "Conversation"}
+          </span>
         </nav>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
@@ -74,7 +77,8 @@ export default function ProjectChatDetailsPage({
               {chat?.chat_name || "Chat Thread"}
             </h1>
             <p className="mt-1 text-xs text-[#596257]">
-              Grounding questions in Project {project?.name || "workspace"} records & MOM vault
+              Grounding questions in Project {project?.name || "workspace"}{" "}
+              records & MOM vault
             </p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#dce6da] bg-[#f1f7ef] px-3.5 py-1.5 text-xs font-bold text-[#426347]">
@@ -97,7 +101,8 @@ export default function ProjectChatDetailsPage({
 
           {isError && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
-              Failed to load conversation history. Check your connection and try again.
+              Failed to load conversation history. Check your connection and try
+              again.
             </div>
           )}
 
@@ -110,7 +115,8 @@ export default function ProjectChatDetailsPage({
                 What would you like to explore?
               </h2>
               <p className="mt-2 text-xs leading-relaxed text-[#596257]">
-                Ops Ninja has this project&apos;s meeting minutes, action items, and connected integrations in active memory.
+                Ops Ninja has this project&apos;s meeting minutes, action items,
+                and connected integrations in active memory.
               </p>
 
               <div className="mt-6 flex flex-col gap-2.5">
@@ -141,7 +147,9 @@ export default function ProjectChatDetailsPage({
                   </span>
                 )}
 
-                <div className={`max-w-[78%] ${isUser ? "text-right" : "text-left"}`}>
+                <div
+                  className={`max-w-[78%] ${isUser ? "text-right" : "text-left"}`}
+                >
                   <div className="mb-1.5 text-[11px] font-bold text-[#8a9587]">
                     {isUser ? "You" : "Ops Ninja"}
                   </div>
@@ -152,7 +160,10 @@ export default function ProjectChatDetailsPage({
                         : "border border-[#dfe5dc] bg-[#f9faf8] text-[#20251f] shadow-xs rounded-tl-xs"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{msg.message}</p>
+                    <MarkdownContent
+                      content={msg.message}
+                      tone={isUser ? "inverse" : "default"}
+                    />
                   </div>
 
                   {msg.proposed_actions && (
@@ -161,7 +172,10 @@ export default function ProjectChatDetailsPage({
                         <span>✓</span>
                         <span>Action proposal generated</span>
                       </div>
-                      <p className="mt-1.5 text-[#596257] leading-relaxed">{msg.proposed_actions}</p>
+                      <MarkdownContent
+                        content={msg.proposed_actions}
+                        className="mt-1.5 text-[#596257]"
+                      />
                     </div>
                   )}
                 </div>

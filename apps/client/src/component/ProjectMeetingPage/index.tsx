@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useProject } from "@/hooks/useProject";
 import { useMeeting } from "@/hooks/useMeeting";
 import { useActions, useExecuteAction } from "@/hooks/useAction";
-import ExpandableContent from "@/component/ExpandableContent";
+import MarkdownContent from "@/component/MarkdownContent";
 
 type ProjectMeetingPageProps = {
   meetingId: string;
@@ -50,7 +50,10 @@ export default function ProjectMeetingPage({
 
   // Ensure we have a description to display
   const description = meeting?.description || "";
-  const shortname = meeting?.shortname || meeting?.original_transcript?.split('\n')[0] || "Meeting Record";
+  const shortname =
+    meeting?.shortname ||
+    meeting?.original_transcript?.split("\n")[0] ||
+    "Meeting Record";
 
   return (
     <div className="workspace-page space-y-6">
@@ -158,15 +161,7 @@ export default function ProjectMeetingPage({
                 <div className="mt-8">
                   {description ? (
                     <div className="space-y-4 text-sm leading-relaxed text-[#596257]">
-                      <div className="prose prose-sm max-w-none">
-                        {description
-                          .split("\n\n")
-                          .map((paragraph, idx) => (
-                            <p key={idx} className="whitespace-pre-wrap">
-                              {paragraph}
-                            </p>
-                          ))}
-                      </div>
+                      <MarkdownContent content={description} />
                       {!!meeting.actions?.length && (
                         <div className="border-t border-[#edf0eb] pt-5">
                           <h3 className="text-xs font-bold uppercase tracking-wider text-[#59745b]">
