@@ -17,9 +17,17 @@ function MenuIcon({ open }: { open: boolean }) {
       aria-hidden="true"
     >
       {open ? (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6 18 18 6M6 6l12 12"
+        />
       ) : (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 7h16M4 12h16M4 17h16"
+        />
       )}
     </svg>
   );
@@ -48,9 +56,7 @@ export default function WorkspaceLayout({
   const projectNav = projectId
     ? [
         { href: `/project/${projectId}`, label: "Overview" },
-        { href: `/project/${projectId}/meeting-summary`, label: "Meetings" },
-        { href: `/project/${projectId}/meeting-summary`, label: "Knowledge" },
-        { href: `/project/${projectId}/meeting-summary`, label: "Actions" },
+        { href: `/project/${projectId}/meeting-summary`, label: "Records" },
         { href: `/project/${projectId}/chat`, label: "Chat" },
       ]
     : [];
@@ -90,7 +96,10 @@ export default function WorkspaceLayout({
       </nav>
 
       {projectNav.length > 0 && (
-        <nav className="border-t border-[var(--line)] px-3 py-4 text-sm" aria-label="Project">
+        <nav
+          className="border-t border-[var(--line)] px-3 py-4 text-sm"
+          aria-label="Project"
+        >
           <p className="px-3 pb-2 text-xs font-semibold text-[var(--ink-3)]">
             Project
           </p>
@@ -145,7 +154,10 @@ export default function WorkspaceLayout({
             >
               <MenuIcon open={mobileMenuOpen} />
             </button>
-            <Link href="/" className="hidden text-sm font-semibold text-[var(--ink-2)] hover:text-[var(--ink)] sm:inline-flex">
+            <Link
+              href="/"
+              className="hidden text-sm font-semibold text-[var(--ink-2)] hover:text-[var(--ink)] sm:inline-flex"
+            >
               Marketing site
             </Link>
           </div>

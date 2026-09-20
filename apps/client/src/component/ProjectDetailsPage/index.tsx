@@ -38,7 +38,9 @@ export default function ProjectDetailsPage({
     <div className="workspace-page">
       <header className="border-b border-[var(--line)] pb-8">
         <nav className="mb-5 flex gap-2 text-sm font-semibold text-[var(--ink-3)]">
-          <Link href="/projects" className="hover:text-[var(--ink)]">Projects</Link>
+          <Link href="/projects" className="hover:text-[var(--ink)]">
+            Projects
+          </Link>
           <span>/</span>
           <span className="truncate">{project?.name || "Project"}</span>
         </nav>
@@ -57,27 +59,26 @@ export default function ProjectDetailsPage({
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-3 lg:justify-end">
-            <button onClick={() => setNewChatOpen(true)} className="secondary-action">
+            <button
+              onClick={() => setNewChatOpen(true)}
+              className="secondary-action"
+            >
               New conversation
             </button>
-            <button onClick={() => setUploadOpen(true)} className="primary-action">
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="primary-action"
+            >
               Upload transcript
             </button>
           </div>
         </div>
       </header>
 
-      <nav className="flex gap-6 overflow-x-auto border-b border-[var(--line)] py-4 text-sm font-bold" aria-label="Project sections">
-        <Link href={`/project/${projectId}`} className="text-[var(--orange-dark)]">Overview</Link>
-        <Link href={`/project/${projectId}/meeting-summary`} className="text-[var(--ink-2)] hover:text-[var(--ink)]">Meetings</Link>
-        <Link href={`/project/${projectId}/meeting-summary`} className="text-[var(--ink-2)] hover:text-[var(--ink)]">Knowledge</Link>
-        <Link href={`/project/${projectId}/meeting-summary`} className="text-[var(--ink-2)] hover:text-[var(--ink)]">Actions</Link>
-        <Link href={`/project/${projectId}/chat`} className="text-[var(--ink-2)] hover:text-[var(--ink)]">Chat</Link>
-      </nav>
-
       {isError && (
         <div className="border-b border-[var(--line)] py-5 text-sm text-[var(--red)]">
-          Project details could not be loaded. Please verify the project ID and try again.
+          Project details could not be loaded. Please verify the project ID and
+          try again.
         </div>
       )}
 
@@ -111,18 +112,25 @@ export default function ProjectDetailsPage({
         <div>
           <div className="flex items-end justify-between gap-4 border-b border-[var(--line)] pb-4">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">Recent activity</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Recent activity
+              </h2>
               <p className="mt-1 text-sm text-[var(--ink-3)]">
                 Meeting evidence, decisions, and follow-up records.
               </p>
             </div>
-            <Link href={`/project/${projectId}/meeting-summary`} className="text-sm font-bold text-[var(--orange-dark)]">
+            <Link
+              href={`/project/${projectId}/meeting-summary`}
+              className="text-sm font-bold text-[var(--orange-dark)]"
+            >
               View all
             </Link>
           </div>
 
           {meetingsLoading && (
-            <div className="py-8 text-sm text-[var(--ink-3)]">Loading meeting records...</div>
+            <div className="py-8 text-sm text-[var(--ink-3)]">
+              Loading meeting records...
+            </div>
           )}
           {!meetingsLoading && !meetingList.length && (
             <div className="border-b border-[var(--line)] py-10">
@@ -130,7 +138,10 @@ export default function ProjectDetailsPage({
               <p className="mt-2 text-sm text-[var(--ink-2)]">
                 Upload the first meeting to create a project record.
               </p>
-              <button onClick={() => setUploadOpen(true)} className="primary-action mt-6">
+              <button
+                onClick={() => setUploadOpen(true)}
+                className="primary-action mt-6"
+              >
                 Upload transcript
               </button>
             </div>
@@ -172,13 +183,18 @@ export default function ProjectDetailsPage({
           <section>
             <div className="flex items-end justify-between border-b border-[var(--line)] pb-4">
               <h2 className="text-2xl font-bold tracking-tight">Chat</h2>
-              <Link href={`/project/${projectId}/chat`} className="text-sm font-bold text-[var(--orange-dark)]">
+              <Link
+                href={`/project/${projectId}/chat`}
+                className="text-sm font-bold text-[var(--orange-dark)]"
+              >
                 All
               </Link>
             </div>
             <div className="divide-y divide-[var(--line)]">
               {chatsLoading && (
-                <p className="py-5 text-sm text-[var(--ink-3)]">Loading threads...</p>
+                <p className="py-5 text-sm text-[var(--ink-3)]">
+                  Loading threads...
+                </p>
               )}
               {!chatsLoading && !chatList.length && (
                 <p className="py-5 text-sm leading-6 text-[var(--ink-2)]">
@@ -191,9 +207,13 @@ export default function ProjectDetailsPage({
                   href={`/project/${projectId}/chat/${chat.chat_id}`}
                   className="block py-4 hover:text-[var(--orange-dark)]"
                 >
-                  <p className="truncate font-bold">{chat.chat_name || "Untitled conversation"}</p>
+                  <p className="truncate font-bold">
+                    {chat.chat_name || "Untitled conversation"}
+                  </p>
                   <p className="mt-1 text-sm text-[var(--ink-3)]">
-                    {new Date(chat.updated_at || chat.created_at).toLocaleDateString()}
+                    {new Date(
+                      chat.updated_at || chat.created_at,
+                    ).toLocaleDateString()}
                   </p>
                 </Link>
               ))}
