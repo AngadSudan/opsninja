@@ -72,7 +72,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <BrandLogo className="h-8 w-8" priority />
+            <BrandLogo className="h-20 w-20" priority />
             <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
           </Link>
 

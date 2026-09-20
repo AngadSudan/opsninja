@@ -33,12 +33,19 @@ export default function AboutPage() {
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/92 backdrop-blur-xl">
         <div className="editorial-page flex min-h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <BrandLogo className="h-8 w-8" priority />
+            <BrandLogo className="h-20 w-20" priority />
             <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
           </Link>
           <div className="flex items-center gap-5 text-sm font-semibold text-[var(--ink-2)]">
-            <Link href="/" className="hover:text-[var(--ink)]">Home</Link>
-            <Link href="/integrations" className="hidden hover:text-[var(--ink)] sm:inline">Integrations</Link>
+            <Link href="/" className="hover:text-[var(--ink)]">
+              Home
+            </Link>
+            <Link
+              href="/integrations"
+              className="hidden hover:text-[var(--ink)] sm:inline"
+            >
+              Integrations
+            </Link>
             <GetStartedButton variant="small" />
           </div>
         </div>
@@ -66,11 +73,21 @@ export default function AboutPage() {
                   key={section.title}
                   className="grid gap-6 py-8 md:grid-cols-[6rem_14rem_minmax(0,1fr)]"
                 >
-                  <span className={index === 2 ? "font-bold text-[var(--orange)]" : "font-bold text-[var(--ink-3)]"}>
+                  <span
+                    className={
+                      index === 2
+                        ? "font-bold text-[var(--orange)]"
+                        : "font-bold text-[var(--ink-3)]"
+                    }
+                  >
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <h2 className="text-2xl font-bold tracking-tight">{section.title}</h2>
-                  <p className="max-w-3xl text-base leading-8 text-[var(--ink-2)]">{section.body}</p>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    {section.title}
+                  </h2>
+                  <p className="max-w-3xl text-base leading-8 text-[var(--ink-2)]">
+                    {section.body}
+                  </p>
                 </article>
               ))}
             </div>
@@ -81,7 +98,10 @@ export default function AboutPage() {
       <footer className="border-t border-[var(--line)]">
         <div className="editorial-page flex flex-col gap-4 py-8 text-sm text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
           <span>Ops Ninja</span>
-          <Link href="/home" className="font-semibold text-[var(--ink)] hover:text-[var(--orange-dark)]">
+          <Link
+            href="/home"
+            className="font-semibold text-[var(--ink)] hover:text-[var(--orange-dark)]"
+          >
             Open workspace
           </Link>
         </div>

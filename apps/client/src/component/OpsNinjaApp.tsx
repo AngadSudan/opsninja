@@ -1035,7 +1035,7 @@ export default function OpsNinjaApp() {
     <div className="ops-app">
       <aside className="workspace-sidebar">
         <Link href="/" className="workspace-brand">
-          <BrandLogo className="h-8 w-8" />
+          <BrandLogo className="h-20 w-20" />
           <span>Ops Ninja</span>
         </Link>
         <div className="workspace-switcher">

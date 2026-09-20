@@ -23,14 +23,14 @@ export default function PageScaffold({
     <main className="flex min-h-screen flex-col justify-between bg-[var(--page)] text-[var(--ink)]">
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/92 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-          <Link href="/" className="flex items-center gap-2.5 text-base font-extrabold tracking-tight">
-            <BrandLogo className="h-8 w-8" /> Ops Ninja
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 text-base font-extrabold tracking-tight"
+          >
+            <BrandLogo className="h-20 w-20" /> Ops Ninja
           </Link>
           <div className="flex items-center gap-3">
-            <Link
-              href="/home"
-              className="secondary-action px-4 py-2"
-            >
+            <Link href="/home" className="secondary-action px-4 py-2">
               Open workspace
             </Link>
           </div>
@@ -39,8 +39,18 @@ export default function PageScaffold({
 
       <section className="mx-auto w-full max-w-2xl px-6 py-16">
         <div className="flex h-14 w-14 items-center justify-center rounded-[5px] border border-[var(--line)] bg-white text-2xl text-[var(--orange)]">
-          <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5Zm0 4.5v4.25l2.75 1.65" />
+          <svg
+            className="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 3.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5Zm0 4.5v4.25l2.75 1.65"
+            />
           </svg>
         </div>
         <p className="mt-6 text-sm font-bold text-[var(--orange-dark)]">
@@ -79,10 +89,7 @@ export default function PageScaffold({
           >
             Try reconnecting
           </button>
-          <Link
-            href="/"
-            className="secondary-action"
-          >
+          <Link href="/" className="secondary-action">
             Return to overview
           </Link>
         </div>
