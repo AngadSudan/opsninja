@@ -16,17 +16,13 @@ export default function GetStartedButton({
   const { isAuthenticated, isLoading } = useAuth();
 
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold transition-all duration-200 cursor-pointer select-none active:scale-[0.98]";
+    "inline-flex min-h-11 items-center justify-center rounded-[5px] font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--orange)] disabled:opacity-50";
 
   const variantStyles = {
-    small:
-      "min-w-[9.5rem] whitespace-nowrap rounded-md bg-[#20251f] px-4 py-2 text-xs text-white shadow-none hover:bg-[#343e33] sm:text-sm",
-    large:
-      "rounded-md bg-[#20251f] px-5 py-3 text-sm sm:text-base font-bold text-white shadow-none hover:bg-[#323c31]",
-    outline:
-      "rounded-md border border-[#20251f]/20 bg-white/80 px-4 py-2 text-xs sm:text-sm text-[#20251f] backdrop-blur hover:bg-white hover:border-[#20251f]/40",
-    white:
-      "rounded-md bg-white px-5 py-3 text-sm sm:text-base font-bold text-[#20251f] shadow-none hover:bg-[#fafaf8]",
+    small: "bg-[var(--ink)] px-4 py-2 text-sm text-white hover:bg-[var(--orange)]",
+    large: "bg-[var(--ink)] px-6 py-3 text-base text-white hover:bg-[var(--orange)]",
+    outline: "border border-[var(--line)] bg-transparent px-4 py-2 text-sm text-[var(--ink)] hover:border-[var(--line-strong)] hover:bg-white",
+    white: "bg-white px-6 py-3 text-base text-[var(--ink)] hover:bg-[var(--page)]",
   };
 
   if (isAuthenticated) {
@@ -35,10 +31,7 @@ export default function GetStartedButton({
         href="/home"
         className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       >
-        <span>Open workspace</span>
-        <span className="ml-1.5 transition-transform group-hover:translate-x-0.5">
-          →
-        </span>
+        Open workspace
       </Link>
     );
   }
@@ -50,16 +43,7 @@ export default function GetStartedButton({
       disabled={isLoading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
-      <span>
-        {isLoading
-          ? "Checking access"
-          : variant === "large" || variant === "white"
-            ? "Create your workspace"
-            : "Get started"}
-      </span>
-      <span className="ml-1.5 transition-transform group-hover:translate-x-0.5">
-        →
-      </span>
+      {isLoading ? "Checking access" : "Open workspace"}
     </button>
   );
 }

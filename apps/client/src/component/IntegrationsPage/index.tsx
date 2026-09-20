@@ -19,41 +19,26 @@ type IntegrationMetadata = {
 const PLATFORMS: Array<{
   platform: "jira" | "slack" | "calendar";
   name: string;
-  symbol: string;
   description: string;
-  consequence: string;
-  color: string;
-  badgeBg: string;
+  capability: string;
 }> = [
   {
     platform: "jira",
-    name: "Atlassian Jira",
-    symbol: "◇",
-    description:
-      "Turn approved action items into traceable issues and tickets in your Jira projects.",
-    consequence: "Approved meeting actions can become assigned Jira work with project context attached.",
-    color: "text-[#3564a8]",
-    badgeBg: "bg-[#edf3ff]",
+    name: "Jira",
+    description: "Issue creation and updates",
+    capability: "Approved meeting actions can become assigned Jira work with project context attached.",
   },
   {
     platform: "slack",
     name: "Slack",
-    symbol: "#",
-    description:
-      "Prepare follow-up summaries and action proposals for team channels where work happens.",
-    consequence: "Review-ready decisions can be posted to the right channel with source context.",
-    color: "text-[#b5522c]",
-    badgeBg: "bg-[#fff1e9]",
+    description: "Channel update proposals",
+    capability: "Approved decisions can post concise updates to the right channel with source context.",
   },
   {
     platform: "calendar",
     name: "Google Calendar",
-    symbol: "◎",
-    description:
-      "Keep meeting context, participants, and follow-up agendas synchronized with your calendar.",
-    consequence: "Meetings stay connected to the operational record that follows them.",
-    color: "text-[#2f7447]",
-    badgeBg: "bg-[#f0f8ef]",
+    description: "Meeting synchronization",
+    capability: "Meetings stay connected to the operational record that follows them.",
   },
 ];
 
@@ -78,8 +63,8 @@ export default function IntegrationsPage() {
               integration.atlassian_cloud_id ||
               integration.atlassian_site_url ||
               integration.platform === "jira" ||
-              integration.connected === true
-          )
+              integration.connected === true,
+          ),
       );
     }
     if (platform === "slack") {
@@ -88,27 +73,24 @@ export default function IntegrationsPage() {
           integrationList.some(
             (integration) =>
               integration.slack_token || integration.platform === "slack",
-          )
+          ),
       );
     }
-    if (platform === "calendar") {
-      return Boolean(
-        user?.calendar_connected ||
-          integrationList.some((integration) => integration.platform === "calendar")
-      );
-    }
-    return false;
+    return Boolean(
+      user?.calendar_connected ||
+        integrationList.some((integration) => integration.platform === "calendar"),
+    );
   };
 
   const getConnectedSiteUrl = () => {
     const jiraItem = integrationList.find(
-      (integration) => integration.atlassian_site_url
+      (integration) => integration.atlassian_site_url,
     );
     return jiraItem?.atlassian_site_url;
   };
 
-  const handleConnectJira = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleConnectJira = (event: React.FormEvent) => {
+    event.preventDefault();
     if (!user) return;
     const url = jiraSiteUrl.trim();
     if (!url) return;
@@ -119,7 +101,7 @@ export default function IntegrationsPage() {
     const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
     window.open(
       `${apiBase}/api/v1/auth/jira?user_id=${user.user_id}&site_url=${encodeURIComponent(formattedUrl)}`,
-      "_self"
+      "_self",
     );
   };
 
@@ -131,129 +113,80 @@ export default function IntegrationsPage() {
   };
 
   return (
-    <div className="workspace-page space-y-6">
-      {/* Header */}
-      <section className="flex flex-col gap-4 border-b border-[#ddd5c9] pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#c3562c]" />
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9f3f1e]">
-              Workspace Configuration
-            </p>
-          </div>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[#20251f] sm:text-3xl">
-            Connected Integrations
-          </h1>
-          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#665f55]">
-            Connect external issue trackers and communication channels. Ops Ninja drafts tickets and summaries behind an unbypassable human approval gate.
-          </p>
-        </div>
-
-        <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[#208c55]/25 bg-[#e9f6ef] px-3.5 py-1.5 text-xs font-bold text-[#1e7048]">
-          <span className="h-2 w-2 rounded-full bg-[#208c55] animate-pulse" />
-          <span>Approval Gate Active</span>
-        </div>
+    <div className="workspace-page">
+      <section className="border-b border-[var(--line)] pb-8">
+        <p className="text-sm font-semibold text-[var(--ink-3)]">Integrations</p>
+        <h1 className="mt-3 text-5xl font-bold tracking-tight">Connected tools</h1>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--ink-2)]">
+          Connect external systems. Ops Ninja drafts work from evidence, then
+          waits for approval before anything leaves the workspace.
+        </p>
       </section>
 
-      <section className="grid gap-px overflow-hidden rounded-lg border border-[#ddd5c9] bg-[#ddd5c9] md:grid-cols-3">
-        {[
-          ["Draft", "Ops Ninja proposes an external action from meeting evidence."],
-          ["Review", "A human verifies payload, destination, and provenance."],
-          ["Execute", "Only approved actions are sent to connected tools."],
-        ].map(([title, body]) => (
-          <div key={title} className="bg-[#fffdfa] p-4">
-            <p className="text-sm font-bold text-[#1c1b17]">{title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-[#665f55]">{body}</p>
+      <section className="grid gap-px border-b border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
+        {["Draft", "Review", "Execute"].map((title) => (
+          <div key={title} className="bg-[var(--page)] py-6 md:px-6 md:first:pl-0 md:last:pr-0">
+            <h2 className="text-lg font-bold">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--ink-2)]">
+              {title === "Draft"
+                ? "Ops Ninja proposes external work from meeting evidence."
+                : title === "Review"
+                  ? "A human verifies payload, destination, and provenance."
+                  : "Only approved actions are sent to connected tools."}
+            </p>
           </div>
         ))}
       </section>
 
-      {/* Loading state */}
       {isLoading && (
-        <div className="grid gap-px overflow-hidden rounded-lg border border-[#ddd5c9] bg-[#ddd5c9] md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse bg-white p-8"
-            />
+        <div className="divide-y divide-[var(--line)]">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="h-28 animate-pulse bg-white/60" />
           ))}
         </div>
       )}
 
-      {/* Error state */}
       {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+        <div className="border-b border-[var(--line)] py-8 text-sm text-[var(--red)]">
           Failed to load integration status. Please check your connection and try again.
         </div>
       )}
 
-      {/* Platforms Grid */}
       {!isLoading && (
-        <div className="grid gap-px overflow-hidden rounded-lg border border-[#dfe5dc] bg-[#dfe5dc] md:grid-cols-2 lg:grid-cols-3">
+        <div className="divide-y divide-[var(--line)]">
           {PLATFORMS.map((tool) => {
             const connected = isPlatformConnected(tool.platform);
             const siteUrl = tool.platform === "jira" ? getConnectedSiteUrl() : undefined;
 
             return (
-              <div
+              <section
                 key={tool.platform}
-                className="group flex min-h-80 flex-col justify-between bg-[#fffdfa] p-5 transition hover:bg-[#fbfaf7]"
+                className="grid gap-5 py-7 lg:grid-cols-[12rem_minmax(0,1fr)_12rem]"
               >
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-xl font-bold ${tool.badgeBg} ${tool.color}`}
-                    >
-                      {tool.symbol}
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                        connected
-                          ? "bg-[#eaf6ec] text-[#347146] border border-[#16a34a]/20"
-                          : "bg-[#f5f7f4] text-[#8a9587] border border-[#dfe5dc]"
-                      }`}
-                    >
-                      <i
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          connected ? "bg-[#16a34a]" : "bg-[#8a9587]"
-                        }`}
-                      />
-                      {connected ? "Connected" : "Disconnected"}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-6 text-xl font-bold text-[#20251f]">
-                    {tool.name}
-                  </h2>
-
-                  <p className="mt-2.5 text-xs leading-relaxed text-[#665f55]">
-                    {tool.description}
+                  <h2 className="text-2xl font-bold">{tool.name}</h2>
+                  <p className="mt-2 text-sm text-[var(--ink-3)]">{tool.description}</p>
+                </div>
+                <div>
+                  <p className="max-w-2xl text-sm leading-7 text-[var(--ink-2)]">
+                    {tool.capability}
                   </p>
-
-                  <div className="mt-5 rounded-lg border border-[#e8e0d4] bg-[#fbfaf7] p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9f3f1e]">
-                      Operational consequence
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-[#665f55]">
-                      {tool.consequence}
-                    </p>
-                  </div>
-
                   {connected && siteUrl && (
-                    <div className="mt-5 overflow-hidden rounded-lg border border-[#edf0eb] bg-[#fafaf8] p-3 text-xs text-[#596257]">
-                      <span className="font-semibold text-[#8a8175]">Site Domain: </span>
-                      <span className="break-all font-mono text-[#20251f]">{siteUrl}</span>
-                    </div>
+                    <p className="mt-2 break-all text-sm text-[var(--ink-3)]">
+                      {siteUrl}
+                    </p>
                   )}
                 </div>
-
-                <div className="mt-8 border-t border-[#e8e0d4] pt-5">
+                <div className="flex flex-col items-start gap-3 lg:items-end">
+                  <span className={`status-text ${connected ? "status-success" : "status-muted"}`}>
+                    {connected ? "Connected" : "Connect"}
+                  </span>
                   {connected ? (
                     <button
                       type="button"
                       onClick={() => setPlatformToDisconnect(tool.platform)}
                       disabled={disconnect.isPending}
-                      className="w-full rounded-lg border border-red-200 bg-white py-2.5 text-xs font-bold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                      className="text-sm font-bold text-[var(--red)] hover:underline disabled:opacity-50"
                     >
                       Disconnect
                     </button>
@@ -261,85 +194,71 @@ export default function IntegrationsPage() {
                     <button
                       type="button"
                       onClick={() => setJiraModalOpen(true)}
-                      className="w-full rounded-lg bg-[#20251f] py-2.5 text-xs font-bold text-white transition hover:bg-[#323c31] active:scale-[0.98]"
+                      className="primary-action"
                     >
-                      Connect Atlassian Jira
+                      Connect Jira
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={() =>
                         alert(
-                          `${tool.name} OAuth connector will be available soon. Jira integration is active!`
+                          `${tool.name} OAuth connector will be available soon. Jira integration is active.`,
                         )
                       }
-                      className="w-full rounded-lg border border-[#dfe5dc] bg-white py-2.5 text-xs font-bold text-[#596257] transition hover:border-[#20251f]/30 hover:bg-[#fafaf8]"
+                      className="secondary-action"
                     >
-                      Configure {tool.name}
+                      Configure
                     </button>
                   )}
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
       )}
 
-      {/* Jira Connect Modal */}
       {jiraModalOpen && (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#101510]/55 p-4 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="jira-connect-title"
         >
-          <div className="w-full max-w-md rounded-lg border border-[#dfe5dc] bg-white p-6 shadow-2xl shadow-[#20251f]/15 animate-in zoom-in-95 duration-200 sm:p-8">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#edf3ff] text-lg font-bold text-[#3564a8]">
-                  ◇
-                </span>
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight text-[#20251f]">
-                    Connect Atlassian Jira
-                  </h2>
-                  <p className="text-xs text-[#596257]">
-                    OAuth 2.0 PKCE authentication
-                  </p>
-                </div>
+          <div className="w-full max-w-md rounded-[5px] border border-[var(--line)] bg-white p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="jira-connect-title" className="text-2xl font-bold tracking-tight">
+                  Connect Jira
+                </h2>
+                <p className="mt-1 text-sm text-[var(--ink-2)]">
+                  Enter your Atlassian site URL.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setJiraModalOpen(false)}
-                className="rounded-lg p-1.5 text-xs text-[#8a9587] transition hover:bg-[#f0f3ee] hover:text-[#20251f]"
+                className="min-h-10 rounded-[5px] px-3 text-sm font-bold text-[var(--ink-3)] hover:bg-[var(--page)] hover:text-[var(--ink)]"
               >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
+                Close
               </button>
             </div>
 
-            <p className="mt-5 text-xs leading-relaxed text-[#596257]">
-              Enter your Atlassian site domain to link your Jira projects. You will be redirected to Atlassian to grant access.
-            </p>
-
             <form onSubmit={handleConnectJira} className="mt-6">
-              <label
-                htmlFor="jira-url"
-                className="block text-xs font-bold uppercase tracking-wider text-[#59745b]"
-              >
-                Jira Site URL <span className="text-[#c2491d]">*</span>
+              <label htmlFor="jira-url" className="text-sm font-bold">
+                Jira site URL
               </label>
               <input
                 id="jira-url"
                 type="text"
                 required
                 value={jiraSiteUrl}
-                onChange={(e) => setJiraSiteUrl(e.target.value)}
+                onChange={(event) => setJiraSiteUrl(event.target.value)}
                 placeholder="https://yourcompany.atlassian.net"
-                className="mt-2 w-full rounded-lg border border-[#dfe5dc] bg-[#fafaf8] px-4 py-3 text-sm text-[#20251f] placeholder:text-[#8a9587] transition focus:border-[#59745b] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#59745b]/10"
+                className="mt-2 min-h-11 w-full rounded-[5px] border border-[var(--line)] bg-white px-4 text-sm outline-none transition focus:border-[var(--orange)]"
               />
 
-              <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#f0f3ee] pt-5 sm:flex-row sm:items-center sm:justify-end">
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setJiraModalOpen(false)}
@@ -347,14 +266,8 @@ export default function IntegrationsPage() {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="primary-action"
-                >
+                <button type="submit" className="primary-action">
                   Continue to Atlassian
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                  </svg>
                 </button>
               </div>
             </form>
@@ -362,15 +275,16 @@ export default function IntegrationsPage() {
         </div>
       )}
 
-      {/* Disconnect Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(platformToDisconnect)}
         title={`Disconnect ${
-          platformToDisconnect ? PLATFORMS.find((p) => p.platform === platformToDisconnect)?.name : "Integration"
+          platformToDisconnect
+            ? PLATFORMS.find((platform) => platform.platform === platformToDisconnect)?.name
+            : "integration"
         }?`}
-        message="This will remove stored tokens and disable automated action proposals for this tool. You can reconnect at any time."
+        message="This will remove stored tokens and disable action proposals for this tool. You can reconnect at any time."
         confirmText="Disconnect"
-        cancelText="Keep Connected"
+        cancelText="Keep connected"
         isDestructive={true}
         onConfirm={handleDisconnect}
         onCancel={() => setPlatformToDisconnect(null)}

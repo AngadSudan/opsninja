@@ -8,7 +8,7 @@ export default function BrandLogo({
   priority?: boolean;
 }) {
   return (
-    <div className={`relative shrink-0 overflow-hidden rounded-lg ${className}`}>
+    <div className={`relative shrink-0 overflow-hidden rounded-[4px] ${className}`}>
       <Image
         src="/logo.png"
         alt="Ops Ninja"

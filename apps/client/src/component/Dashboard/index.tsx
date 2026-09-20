@@ -20,24 +20,23 @@ export default function Dashboard() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const integrationList = (integrations ?? []) as IntegrationMetadata[];
 
-  // Compute connected status from integrations and user flags
   const isJiraConnected = Boolean(
     user?.atlassian_connected ||
-    integrationList.some(
-      (integration) =>
-        integration.atlassian_cloud_id || integration.platform === "jira",
-    ),
+      integrationList.some(
+        (integration) =>
+          integration.atlassian_cloud_id || integration.platform === "jira",
+      ),
   );
   const isSlackConnected = Boolean(
     user?.slack_connected ||
-    integrationList.some(
-      (integration) =>
-        integration.slack_token || integration.platform === "slack",
-    ),
+      integrationList.some(
+        (integration) =>
+          integration.slack_token || integration.platform === "slack",
+      ),
   );
   const isCalendarConnected = Boolean(
     user?.calendar_connected ||
-    integrationList.some((integration) => integration.platform === "calendar"),
+      integrationList.some((integration) => integration.platform === "calendar"),
   );
 
   const connectedCount = [
@@ -46,404 +45,136 @@ export default function Dashboard() {
     isCalendarConnected,
   ].filter(Boolean).length;
   const projectCount = projects?.length ?? 0;
-  const recentProjects = projects?.slice(0, 4) ?? [];
-  const attentionItems = [
-    {
-      title: "Review staged external actions",
-      body: "Open the latest meeting record and approve only the payloads that match the evidence.",
-      href: recentProjects[0]?.project_id
-        ? `/project/${recentProjects[0].project_id}/meeting-summary`
-        : "/projects",
-      status: "Pending approval",
-    },
-    {
-      title: "Ask project context before dispatch",
-      body: "Use the contextual chat to verify decisions against meeting history and project memory.",
-      href: recentProjects[0]?.project_id
-        ? `/project/${recentProjects[0].project_id}/chat`
-        : "/projects",
-      status: "Provenance ready",
-    },
-  ];
+  const recentProjects = projects?.slice(0, 5) ?? [];
 
   return (
-    <div className="workspace-page space-y-6 overflow-x-hidden">
-      {/* Top Banner */}
-      <section className="flex flex-col gap-4 border-b border-[#ddd5c9] pb-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="workspace-page">
+      <section className="grid gap-10 border-b border-[var(--line)] pb-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#c97a17]" />
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9f3f1e]">
-              Command Center
-            </p>
-          </div>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[#20251f] sm:text-3xl">
+          <p className="text-sm font-semibold text-[var(--ink-3)]">Home</p>
+          <h1 className="mt-3 max-w-3xl text-5xl font-bold leading-tight tracking-tight">
             Welcome back{user?.user_name ? `, ${user.user_name}` : ""}.
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-[#665f55]">
-            Review what needs attention, resume recent meeting work, and keep execution behind the human gate.
+          <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--ink-2)]">
+            Review project work, open recent meeting records, and keep external
+            execution behind approval.
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+        <div className="self-end">
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#1c1b17] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#2b2923] active:scale-[0.98]"
+            className="primary-action w-full sm:w-auto"
           >
-            <span className="text-base leading-none">+</span>
-            <span>New project</span>
+            New project
           </button>
-          <Link
-            href="/integrations"
-            className="inline-flex min-h-10 items-center gap-2.5 rounded-lg border border-[#dfe5dc] bg-white px-5 py-2.5 text-xs font-bold text-[#596257] transition hover:border-[#20251f]/30 hover:bg-[#fafaf8] hover:text-[#20251f]"
-          >
-            <span>Connected tools</span>
-            <span className="rounded-full bg-[#f1f7ef] px-2 py-0.5 text-[10px] font-extrabold text-[#426347]">
-              {connectedCount}/3
-            </span>
-          </Link>
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.8fr)]">
-        <div className="rounded-lg border border-[#ddd5c9] bg-[#fffdfa]">
-          <div className="border-b border-[#e8e0d4] px-4 py-3">
-            <h2 className="text-base font-bold text-[#1c1b17]">Attention queue</h2>
-            <p className="text-xs text-[#706a60]">The next operational moves in the meeting-to-execution loop.</p>
-          </div>
-          <div className="divide-y divide-[#e8e0d4]">
-            {attentionItems.map((item) => (
-              <Link key={item.title} href={item.href} className="block p-4 transition hover:bg-[#fbfaf7]">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <span className="ops-status ops-status-pending">{item.status}</span>
-                    <h3 className="mt-2 text-sm font-bold text-[#1c1b17]">{item.title}</h3>
-                    <p className="mt-1 text-xs leading-relaxed text-[#665f55]">{item.body}</p>
-                  </div>
-                  <span className="text-xs font-bold text-[#9f3f1e]">Open</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-lg border border-[#1c1b17] bg-[#121615] p-4 text-[#ede8dd]">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#c98a64]">
-            Current loop
-          </p>
-          <div className="mt-4 grid gap-2 text-xs font-semibold">
-            {["Meeting captured", "Context indexed", "Actions staged", "Human review required", "Jira / Slack execution"].map((step, index) => (
-              <div key={step} className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-3 py-2">
-                <span>{step}</span>
-                <span className={index < 2 ? "text-[#65c08c]" : index === 3 ? "text-[#e0b46f]" : "text-[#c9c2b5]"}>
-                  {index < 2 ? "Ready" : index === 3 ? "Gate" : "After approval"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Metric Cards */}
-      <section className="grid items-stretch gap-px overflow-hidden rounded-lg border border-[#dfe5dc] bg-[#dfe5dc] sm:grid-cols-3">
-        <Link
-          href="/projects"
-          className="group bg-white p-4 transition hover:bg-[#f5f8f4]"
-        >
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#59745b]">
-            <span>Active Projects</span>
-            <span className="text-[#8a9587] transition group-hover:translate-x-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </div>
-          <strong className="mt-2 block text-2xl font-extrabold tracking-tight text-[#20251f]">
-            {projectsLoading ? "…" : String(projectCount).padStart(2, "0")}
-          </strong>
-          <p className="mt-2 text-xs text-[#7a8678]">
-            {projectCount === 0
-              ? "No active workspaces created"
-              : "Operational projects indexed"}
+      <section className="grid gap-px border-b border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
+        <Link href="/projects" className="bg-[var(--page)] py-6 pr-6 hover:bg-white">
+          <p className="text-sm font-semibold text-[var(--ink-3)]">Projects</p>
+          <p className="mt-3 text-4xl font-bold">{projectsLoading ? "…" : projectCount}</p>
+        </Link>
+        <Link href="/integrations" className="bg-[var(--page)] px-6 py-6 hover:bg-white">
+          <p className="text-sm font-semibold text-[var(--ink-3)]">Integrations</p>
+          <p className="mt-3 text-4xl font-bold">
+            {connectedCount}<span className="text-2xl text-[var(--ink-3)]">/3</span>
           </p>
         </Link>
-
-        <Link
-          href="/integrations"
-          className="group bg-white p-4 transition hover:bg-[#f5f8f4]"
-        >
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#59745b]">
-            <span>Connected Integrations</span>
-            <span className="text-[#8a9587] transition group-hover:translate-x-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </div>
-          <strong className="mt-2 block text-2xl font-extrabold tracking-tight text-[#20251f]">
-            {String(connectedCount).padStart(2, "0")}
-            <span className="text-xl font-normal text-[#8a9587]">/03</span>
-          </strong>
-          <p className="mt-2 text-xs text-[#7a8678]">
-            {connectedCount > 0
-              ? "Jira, Slack, or Calendar linked"
-              : "Connect Jira to automate follow-up"}
-          </p>
-        </Link>
-
-        <div className="bg-[#f1f7ef] p-4 text-[#426347]">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
-            <span className="h-2 w-2 rounded-full bg-[#16a34a]" />
-            <span>Operational Memory</span>
-          </div>
-          <strong className="mt-2 block text-lg font-bold tracking-tight text-[#20251f]">
-            Vault Synchronized
-          </strong>
-          <p className="mt-2 text-xs leading-relaxed text-[#59745b]">
-            Transcripts, structured MOMs, and human-approved action gates are
-            active.
-          </p>
+        <div className="bg-[var(--page)] py-6 pl-6">
+          <p className="text-sm font-semibold text-[var(--ink-3)]">Approval</p>
+          <p className="mt-4 status-text status-pending">Human review required</p>
         </div>
       </section>
 
-      {/* Main Grid: Projects & Quick Actions */}
-      <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(300px,1fr)]">
-        {/* Left: Recent Projects */}
-        <div className="border border-[#dfe5dc] bg-white">
-          <div className="flex min-h-14 items-center justify-between gap-4 border-b border-[#edf0eb] px-4 py-3">
-            <h2 className="text-xl font-bold tracking-tight text-[#20251f]">
-              Recent Projects
-            </h2>
-            <Link
-              href="/projects"
-              className="text-xs font-bold uppercase tracking-wider text-[#59745b] transition hover:text-[#20251f]"
-            >
-              View all ({projectCount})
+      <section className="grid gap-12 py-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div>
+          <div className="flex items-end justify-between gap-4 border-b border-[var(--line)] pb-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Recent projects</h2>
+              <p className="mt-1 text-sm text-[var(--ink-3)]">
+                Latest operational workspaces.
+              </p>
+            </div>
+            <Link href="/projects" className="text-sm font-bold text-[var(--orange-dark)]">
+              View all
             </Link>
           </div>
 
           {projectsLoading && (
-            <div className="grid gap-px bg-[#edf0eb] sm:grid-cols-2">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-40 animate-pulse bg-white p-4" />
+            <div className="divide-y divide-[var(--line)]">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="h-24 animate-pulse bg-white/55" />
               ))}
             </div>
           )}
 
           {!projectsLoading && recentProjects.length === 0 && (
-            <div className="m-4 rounded-lg border border-dashed border-[#cbd9c8] bg-[#fbfcfa] p-8 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-[#f4f8f2] text-xl text-[#59745b]">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4.1l2 2H18.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" />
-                </svg>
-              </div>
-              <h3 className="mt-4 text-base font-bold text-[#20251f]">
-                No projects yet
-              </h3>
-              <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-[#667166]">
-                Create your first project to start organizing transcripts,
-                AI-extracted MOMs, and follow-through actions.
+            <div className="border-b border-[var(--line)] py-10">
+              <h3 className="text-xl font-bold">No projects yet</h3>
+              <p className="mt-2 max-w-md text-sm leading-6 text-[var(--ink-2)]">
+                Create a project to organize transcripts, decisions, actions,
+                and project conversations.
               </p>
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#20251f] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#323c31]"
+                className="primary-action mt-6"
               >
-                + Create first project
+                Create first project
               </button>
             </div>
           )}
 
           {!projectsLoading && recentProjects.length > 0 && (
-            <div className="grid divide-y divide-[#edf0eb]">
+            <div className="divide-y divide-[var(--line)]">
               {recentProjects.map((project) => (
                 <Link
                   key={project.project_id}
                   href={`/project/${project.project_id}`}
-              className="group flex min-h-40 flex-col justify-between p-4 transition hover:bg-[#f8faf7]"
+                  className="grid gap-4 py-5 hover:bg-white sm:grid-cols-[minmax(0,1fr)_9rem]"
                 >
                   <div>
-                    <div className="flex items-center justify-between">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eaf2e8] text-xs font-bold text-[#59745b]">
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4.1l2 2H18.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" />
-                        </svg>
-                      </span>
-                      <span className="text-xs text-[#8a9587]">
-                        {new Date(
-                          project.updated_at || project.created_at,
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <h3 className="mt-3 text-sm font-bold text-[#20251f] group-hover:text-[#59745b] transition-colors">
-                      {project.name}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#667166]">
+                    <h3 className="text-lg font-bold">{project.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--ink-2)]">
                       {project.description || "No description provided."}
                     </p>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs font-semibold text-[#59745b]">
-                    <span>Open workspace</span>
-                    <span className="transition group-hover:translate-x-1">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                      </svg>
-                    </span>
-                  </div>
+                  <p className="text-sm text-[var(--ink-3)] sm:text-right">
+                    {new Date(project.updated_at || project.created_at).toLocaleDateString()}
+                  </p>
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        {/* Right: Integration Status & Workflows */}
-        <div className="space-y-5">
-          <div className="rounded-lg border border-[#dfe5dc] bg-white p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-[#20251f]">
-                Integration Status
-              </h2>
-              <Link
-                href="/integrations"
-                className="text-xs font-bold text-[#59745b] hover:underline"
-              >
-                Configure
-              </Link>
-            </div>
-            <p className="mt-1 text-xs text-[#667166]">
-              External tools wired for actions and sync.
-            </p>
-
-            <div className="mt-6 space-y-3">
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-[#edf0eb] bg-[#fafaf8] p-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#edf3ff] font-bold text-[#3564a8]">
-                    ◇
+        <aside>
+          <h2 className="border-b border-[var(--line)] pb-4 text-2xl font-bold tracking-tight">
+            Connected tools
+          </h2>
+          <div className="divide-y divide-[var(--line)]">
+            {[
+              ["Jira", isJiraConnected, "Issue creation and updates"],
+              ["Slack", isSlackConnected, "Approved channel updates"],
+              ["Calendar", isCalendarConnected, "Meeting synchronization"],
+            ].map(([name, connected, description]) => (
+              <div key={String(name)} className="py-5">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="font-bold">{name}</h3>
+                  <span className={`status-text ${connected ? "status-success" : "status-muted"}`}>
+                    {connected ? "Connected" : "Connect"}
                   </span>
-                  <div>
-                    <strong className="block text-xs text-[#20251f]">
-                      Atlassian Jira
-                    </strong>
-                    <small className="text-[11px] text-[#7a8678]">
-                      Issue creation & tracking
-                    </small>
-                  </div>
                 </div>
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                    isJiraConnected
-                      ? "bg-[#eaf6ec] text-[#347146]"
-                      : "bg-[#f5f7f4] text-[#8a9587]"
-                  }`}
-                >
-                  <i
-                    className={`h-1.5 w-1.5 rounded-full ${isJiraConnected ? "bg-[#16a34a]" : "bg-[#8a9587]"}`}
-                  />
-                  {isJiraConnected ? "Connected" : "Inactive"}
-                </span>
+                <p className="mt-1 text-sm leading-6 text-[var(--ink-2)]">{description}</p>
               </div>
-
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-[#edf0eb] bg-[#fafaf8] p-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fff1e9] font-bold text-[#b5522c]">
-                    #
-                  </span>
-                  <div>
-                    <strong className="block text-xs text-[#20251f]">
-                      Slack
-                    </strong>
-                    <small className="text-[11px] text-[#7a8678]">
-                      Channel message proposals
-                    </small>
-                  </div>
-                </div>
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                    isSlackConnected
-                      ? "bg-[#eaf6ec] text-[#347146]"
-                      : "bg-[#f5f7f4] text-[#8a9587]"
-                  }`}
-                >
-                  <i
-                    className={`h-1.5 w-1.5 rounded-full ${isSlackConnected ? "bg-[#16a34a]" : "bg-[#8a9587]"}`}
-                  />
-                  {isSlackConnected ? "Connected" : "Inactive"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-[#edf0eb] bg-[#fafaf8] p-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f0f8ef] font-bold text-[#2f7447]">
-                    ◎
-                  </span>
-                  <div>
-                    <strong className="block text-xs text-[#20251f]">
-                      Google Calendar
-                    </strong>
-                    <small className="text-[11px] text-[#7a8678]">
-                      Meeting sync & events
-                    </small>
-                  </div>
-                </div>
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                    isCalendarConnected
-                      ? "bg-[#eaf6ec] text-[#347146]"
-                      : "bg-[#f5f7f4] text-[#8a9587]"
-                  }`}
-                >
-                  <i
-                    className={`h-1.5 w-1.5 rounded-full ${isCalendarConnected ? "bg-[#16a34a]" : "bg-[#8a9587]"}`}
-                  />
-                  {isCalendarConnected ? "Connected" : "Inactive"}
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
-
-          <div className="rounded-lg border border-[#dfe5dc] bg-white p-4">
-            <h2 className="text-base font-bold text-[#20251f]">
-              Quick Workflows
-            </h2>
-            <div className="mt-4 space-y-3">
-              <button
-                type="button"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="flex w-full items-center justify-between gap-4 rounded-lg border border-[#edf0eb] p-4 text-left transition hover:border-[#dfe5dc] hover:bg-[#fafaf8]"
-              >
-                <div>
-                  <strong className="block text-xs text-[#20251f]">
-                    Create a new project
-                  </strong>
-                  <small className="text-[11px] text-[#7a8678]">
-                    Organize meetings and context
-                  </small>
-                </div>
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f0f5ee] text-xs font-bold text-[#59745b]">
-                  +
-                </span>
-              </button>
-              <Link
-                href="/projects"
-                className="flex w-full items-center justify-between gap-4 rounded-lg border border-[#edf0eb] p-4 text-left transition hover:border-[#dfe5dc] hover:bg-[#fafaf8]"
-              >
-                <div>
-                  <strong className="block text-xs text-[#20251f]">
-                    Upload meeting transcript
-                  </strong>
-                  <small className="text-[11px] text-[#7a8678]">
-                    Generate structured MOM and action items
-                  </small>
-                </div>
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f0f5ee] text-xs font-bold text-[#59745b]">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                  </svg>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </div>
+          <Link href="/integrations" className="secondary-action mt-4 w-full">
+            Manage integrations
+          </Link>
+        </aside>
       </section>
 
       <CreateProjectModal
