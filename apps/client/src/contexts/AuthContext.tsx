@@ -29,9 +29,13 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
 }
 
+type ApiUser = Omit<User, "email"> & {
+  email?: string;
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function normalizeUser(raw: any): User | null {
+function normalizeUser(raw: ApiUser | null | undefined): User | null {
   if (!raw) return null;
   return {
     ...raw,

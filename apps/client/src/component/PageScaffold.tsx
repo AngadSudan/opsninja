@@ -20,9 +20,8 @@ export default function PageScaffold({
   details = [],
 }: PageScaffoldProps) {
   return (
-    <main className="min-h-screen bg-[#fafaf8] text-[#20251f] flex flex-col justify-between selection:bg-[#59745b]/20">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b border-[#20251f]/8 bg-[#fafaf8]/85 backdrop-blur-xl">
+    <main className="flex min-h-screen flex-col justify-between bg-[var(--page)] text-[var(--ink)]">
+      <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--page)]/92 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
           <Link href="/" className="flex items-center gap-2.5 text-base font-extrabold tracking-tight">
             <BrandLogo className="h-8 w-8" /> Ops Ninja
@@ -38,20 +37,19 @@ export default function PageScaffold({
         </div>
       </header>
 
-      {/* Main Content */}
-      <section className="mx-auto max-w-2xl px-6 py-16 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[#e8eee5] text-2xl text-[#59745b] shadow-xs">
+      <section className="mx-auto w-full max-w-2xl px-6 py-16">
+        <div className="flex h-14 w-14 items-center justify-center rounded-[5px] border border-[var(--line)] bg-white text-2xl text-[var(--orange)]">
           <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5Zm0 4.5v4.25l2.75 1.65" />
           </svg>
         </div>
-        <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[#59745b]">
+        <p className="mt-6 text-sm font-bold text-[var(--orange-dark)]">
           {eyebrow}
         </p>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#20251f] sm:text-5xl">
+        <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[var(--ink)] sm:text-5xl">
           {title}
         </h1>
-        <p className="mt-4 text-sm leading-7 text-[#596257] sm:text-base">
+        <p className="mt-4 text-sm leading-7 text-[var(--ink-2)] sm:text-base">
           {description}
         </p>
 
@@ -60,12 +58,12 @@ export default function PageScaffold({
             {details.map((detail) => (
               <div
                 key={detail.label}
-                className="rounded-lg border border-[#dfe5dc] bg-white p-4 text-left shadow-sm"
+                className="border border-[var(--line)] bg-white p-4 text-left"
               >
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a9587]">
+                <span className="text-xs font-bold text-[var(--ink-3)]">
                   {detail.label}
                 </span>
-                <strong className="mt-1 block text-sm text-[#20251f]">
+                <strong className="mt-1 block text-sm text-[var(--ink)]">
                   {detail.value}
                 </strong>
               </div>
@@ -90,9 +88,8 @@ export default function PageScaffold({
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[#dfe5dc] py-6 text-center text-xs text-[#8a9587]">
-        Ops Ninja · PWA Offline Resilience
+      <footer className="border-t border-[var(--line)] py-6 text-center text-xs text-[var(--ink-3)]">
+        Ops Ninja
       </footer>
     </main>
   );

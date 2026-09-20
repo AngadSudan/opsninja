@@ -13,16 +13,16 @@ export default function MarkdownContent({
   tone = "default",
 }: MarkdownContentProps) {
   const isInverse = tone === "inverse";
-  const headingClass = isInverse ? "text-white" : "text-[#20251f]";
-  const strongClass = isInverse ? "text-white" : "text-[#20251f]";
+  const headingClass = isInverse ? "text-white" : "text-[var(--ink)]";
+  const strongClass = isInverse ? "text-white" : "text-[var(--ink)]";
   const linkClass = isInverse
-    ? "text-[#dce6ff] decoration-[#dce6ff] hover:text-white"
-    : "text-[#3564a8] decoration-[#b8cbe8] hover:text-[#20251f]";
+    ? "text-white decoration-white/60 hover:text-white"
+    : "text-[var(--orange-dark)] decoration-[var(--orange)] hover:text-[var(--ink)]";
 
   return (
     <div
       className={`markdown-content text-sm leading-7 ${
-        isInverse ? "text-white" : "text-[#596257]"
+        isInverse ? "text-white" : "text-[var(--ink-2)]"
       } ${className}`}
     >
       <ReactMarkdown
@@ -44,7 +44,7 @@ export default function MarkdownContent({
           ),
           h3: ({ children }) => (
             <h3
-              className={`mb-2 mt-5 text-sm font-bold uppercase tracking-wide ${isInverse ? "text-[#dce6ff]" : "text-[#426347]"}`}
+              className={`mb-2 mt-5 text-sm font-bold ${isInverse ? "text-white" : "text-[var(--orange-dark)]"}`}
             >
               {children}
             </h3>
@@ -63,7 +63,7 @@ export default function MarkdownContent({
           li: ({ children }) => <li className="pl-1">{children}</li>,
           blockquote: ({ children }) => (
             <blockquote
-              className={`my-4 border-l-2 px-4 py-2 ${isInverse ? "border-[#dce6ff] bg-white/10 text-white" : "border-[#9db29b] bg-[#f1f7ef] text-[#596257]"}`}
+              className={`my-4 border-l-2 px-4 py-2 ${isInverse ? "border-white bg-white/10 text-white" : "border-[var(--orange)] bg-[var(--page)] text-[var(--ink-2)]"}`}
             >
               {children}
             </blockquote>
@@ -85,15 +85,15 @@ export default function MarkdownContent({
             <code
               className={
                 codeClassName
-                  ? "font-mono text-xs text-[#e9eee7]"
-                  : `rounded px-1.5 py-0.5 font-mono text-[0.85em] ${isInverse ? "bg-white/15 text-white" : "bg-[#edf0eb] text-[#20251f]"}`
+                  ? "font-mono text-xs text-white"
+                  : `rounded-[3px] px-1.5 py-0.5 font-mono text-[0.85em] ${isInverse ? "bg-white/15 text-white" : "bg-[var(--paper-muted)] text-[var(--ink)]"}`
               }
             >
               {children}
             </code>
           ),
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-lg border border-[#dfe5dc] bg-[#20251f] p-4 font-mono text-xs leading-6 text-[#e9eee7]">
+            <pre className="my-4 overflow-x-auto rounded-[5px] border border-[var(--line)] bg-[var(--ink)] p-4 font-mono text-xs leading-6 text-white">
               {children}
             </pre>
           ),
@@ -106,17 +106,17 @@ export default function MarkdownContent({
           ),
           th: ({ children }) => (
             <th
-              className={`border border-[#dfe5dc] px-3 py-2 font-bold ${isInverse ? "bg-white/10 text-white" : "bg-[#f1f7ef] text-[#20251f]"}`}
+              className={`border border-[var(--line)] px-3 py-2 font-bold ${isInverse ? "bg-white/10 text-white" : "bg-[var(--paper-muted)] text-[var(--ink)]"}`}
             >
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border border-[#dfe5dc] px-3 py-2 align-top">
+            <td className="border border-[var(--line)] px-3 py-2 align-top">
               {children}
             </td>
           ),
-          hr: () => <hr className="my-6 border-[#dfe5dc]" />,
+          hr: () => <hr className="my-6 border-[var(--line)]" />,
         }}
       >
         {content}
