@@ -28,7 +28,7 @@ export default function SigninPage() {
           href="/"
           className="inline-flex items-center gap-2.5 text-lg font-extrabold tracking-tight"
         >
-          <BrandLogo /> Ops Ninja
+          <BrandLogo className="h-20 w-20" /> Ops Ninja
         </Link>
 
         <h1 className="mt-8 text-2xl font-bold tracking-tight text-[#20251f]">

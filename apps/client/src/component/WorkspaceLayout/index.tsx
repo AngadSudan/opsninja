@@ -74,7 +74,7 @@ export default function WorkspaceLayout({
         className="flex min-h-12 items-center gap-3 border-b border-[var(--line)] px-5 py-4"
         onClick={() => setMobileMenuOpen(false)}
       >
-        <BrandLogo className="h-8 w-8" priority />
+        <BrandLogo className="h-20 w-20" priority />
         <span className="text-sm font-bold tracking-tight">Ops Ninja</span>
       </Link>
 
